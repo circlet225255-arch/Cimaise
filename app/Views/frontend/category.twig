@@ -356,6 +356,11 @@
   var activeIndex = 0;
   var autoplayMs = 4200;
   var timer = null;
+  var wheelThreshold = 64;
+  var wheelCooldownMs = 650;
+  var wheelAccumulator = 0;
+  var wheelResetTimer = null;
+  var wheelLockedUntil = 0;
   var positionClasses = ['is-active', 'is-left-1', 'is-right-1', 'is-left-2', 'is-right-2'];
 
   function relativePosition(index) {
@@ -409,8 +414,34 @@
     restart();
   }
 
+  function handleWheel(event) {
+    if (slides.length < 2) return;
+    event.preventDefault();
+
+    var delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+    if (!delta) return;
+    if (event.deltaMode === 1) delta *= 16;
+    if (event.deltaMode === 2) delta *= window.innerHeight;
+
+    wheelAccumulator += delta;
+    if (wheelResetTimer) window.clearTimeout(wheelResetTimer);
+    wheelResetTimer = window.setTimeout(function () { wheelAccumulator = 0; }, 180);
+
+    if (Math.abs(wheelAccumulator) < wheelThreshold) return;
+    var now = Date.now();
+    if (now < wheelLockedUntil) {
+      wheelAccumulator = 0;
+      return;
+    }
+
+    wheelAccumulator = 0;
+    wheelLockedUntil = now + wheelCooldownMs;
+    move(delta > 0 ? 1 : -1);
+  }
+
   if (prev) prev.addEventListener('click', function () { move(-1); });
   if (next) next.addEventListener('click', function () { move(1); });
+  root.addEventListener('wheel', handleWheel, { passive: false });
   dots.forEach(function (dot) {
     dot.addEventListener('click', function () {
       activeIndex = Number(dot.getAttribute('data-work-dot')) || 0;
@@ -431,7 +462,11 @@
   fetch('{{ base_path }}/work-stream-template.json', { credentials: 'same-origin' })
     .then(function (response) { return response.ok ? response.json() : null; })
     .then(function (config) {
-      if (config && config.carousel && Number(config.carousel.autoplayMs) > 0) autoplayMs = Number(config.carousel.autoplayMs);
+      if (config && config.carousel) {
+        if (Number(config.carousel.autoplayMs) > 0) autoplayMs = Number(config.carousel.autoplayMs);
+        if (Number(config.carousel.wheelThreshold) > 0) wheelThreshold = Number(config.carousel.wheelThreshold);
+        if (Number(config.carousel.wheelCooldownMs) > 0) wheelCooldownMs = Number(config.carousel.wheelCooldownMs);
+      }
       restart();
     })
     .catch(function () { restart(); });

@@ -33,6 +33,8 @@
     "perspectivePx": 1100,
     "transitionMs": 900,
     "autoplayMs": 4200,
+    "wheelThreshold": 64,
+    "wheelCooldownMs": 650,
     "backgroundBlurPx": 19,
     "backgroundBrightness": 0.65,
     "centerScale": 1.04,
