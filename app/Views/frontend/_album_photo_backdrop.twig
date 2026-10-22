@@ -1,0 +1,61 @@
+{# Shared album atmosphere: the active project image becomes a soft full-bleed backdrop. #}
+{% if images|default([])|length > 0 and album_page_template|default('') != 'axel' %}
+<style nonce="{{ csp_nonce() }}">
+body:has(.album-photo-backdrop) {
+  background: #101719 !important;
+  color: #fff !important;
+  --color-bg-primary: #101719 !important;
+}
+body:has(.album-photo-backdrop) #main-header {
+  background: rgb(16 23 25 / 96%) !important;
+  border-color: rgb(255 255 255 / 16%) !important;
+  color: #fff !important;
+}
+body:has(.album-photo-backdrop) #main-header a,
+body:has(.album-photo-backdrop) #main-header button { color: #fff !important; }
+body:has(.album-photo-backdrop) #main-content {
+  position: relative;
+  isolation: isolate;
+  background: transparent !important;
+}
+body:has(.album-photo-backdrop) #main-content > *:not(.album-photo-backdrop) {
+  position: relative;
+  z-index: 1;
+}
+.album-photo-backdrop {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #101719;
+}
+.album-photo-backdrop__image {
+  position: absolute;
+  inset: -1.5rem;
+  width: calc(100% + 3rem);
+  height: calc(100% + 3rem);
+  max-width: none;
+  object-fit: cover;
+  opacity: 0;
+  filter: blur(1.2rem) saturate(.75) brightness(.65);
+  transform: scale(1.1);
+  transition: opacity .8s ease;
+  will-change: opacity;
+}
+.album-photo-backdrop__image.is-active { opacity: 1; }
+.album-photo-backdrop__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(6, 11, 13, .8) 0%, rgba(6, 11, 13, .16) 38%, rgba(6, 11, 13, .66) 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .album-photo-backdrop__image { transition-duration: .01ms !important; }
+}
+</style>
+<div class="album-photo-backdrop" data-album-photo-backdrop aria-hidden="true">
+  <img class="album-photo-backdrop__image" data-album-backdrop-image alt="">
+  <img class="album-photo-backdrop__image" data-album-backdrop-image alt="">
+  <div class="album-photo-backdrop__scrim"></div>
+</div>
+{% endif %}

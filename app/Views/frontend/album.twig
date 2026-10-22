@@ -9,6 +9,7 @@
 {% set work_stream_slugs = ['concept', 'event', 'wedding'] %}
 {% set album_work_categories = album.categories|default([])|filter(category => category.slug in work_stream_slugs) %}
 {% set is_work_stream = album.category_slug|default('') in work_stream_slugs or album_work_categories|length > 0 %}
+{% include 'frontend/_album_photo_backdrop.twig' %}
 {# NSFW Age Gate - shown if album is NSFW and user hasn't confirmed (skip for admins) #}
 {% if album.is_nsfw and not is_admin %}
 <div id="nsfw-gate" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 hidden"
@@ -1071,6 +1072,7 @@ document.addEventListener('click', function(event) {
 {% endblock %}
 
 {% block scripts %}
+{% include 'frontend/_album_photo_backdrop_script.twig' %}
 <script nonce="{{ csp_nonce() }}">
 // Global base path for API calls
 window.basePath = '{{ base_path }}';

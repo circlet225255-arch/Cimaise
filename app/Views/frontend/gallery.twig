@@ -76,6 +76,7 @@
   }
 </style>
 {% endif %}
+{% include 'frontend/_album_photo_backdrop.twig' %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   {% if album_page_template|default('') == 'axel' %}
   <header class="axel-album-head">
@@ -761,6 +762,7 @@
 
 {% block scripts %}
 {% include 'frontend/_gallery_runtime.twig' %}
+{% include 'frontend/_album_photo_backdrop_script.twig' %}
 {% if album_page_template|default('') == 'axel' %}
 <script nonce="{{ csp_nonce() }}">
 (function () {

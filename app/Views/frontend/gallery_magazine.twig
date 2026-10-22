@@ -4,6 +4,7 @@
 {% set work_stream_slugs = ['concept', 'event', 'wedding'] %}
 {% set album_work_categories = album.categories|default([])|filter(cat => cat.slug in work_stream_slugs) %}
 {% set is_work_stream = album.category_slug|default('') in work_stream_slugs or album_work_categories|length > 0 %}
+{% include 'frontend/_album_photo_backdrop.twig' %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 album-page{% if is_work_stream %} album-page--work-stream{% endif %}">
   <div class="max-w-4xl mx-auto text-center pb-12">
     <div class="mb-4 flex flex-wrap gap-2 justify-center">
@@ -563,4 +564,5 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 });
 </script>
+{% include 'frontend/_album_photo_backdrop_script.twig' %}
 {% endblock %}

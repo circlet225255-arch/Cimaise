@@ -1,0 +1,88 @@
+<script nonce="{{ csp_nonce() }}">
+// Keep the backdrop aligned with the gallery image most visible in the viewport.
+(function initAlbumPhotoBackdrop() {
+  const shell = document.querySelector('[data-album-photo-backdrop]');
+  const gallery = document.querySelector('#images-gallery');
+  const layers = shell ? Array.from(shell.querySelectorAll('[data-album-backdrop-image]')) : [];
+  if (!shell || !gallery || layers.length < 2) return;
+
+  const firstImage = gallery.querySelector('img');
+  const firstSrc = firstImage && (firstImage.currentSrc || firstImage.src);
+  let activeLayer = 0;
+  let currentSrc = '';
+  let pendingSrc = '';
+  let frame = 0;
+
+  function galleryImages() {
+    return Array.from(gallery.querySelectorAll('img')).filter((image) => {
+      const rect = image.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0 && (image.currentSrc || image.src);
+    });
+  }
+
+  function setLayer(layer, src) {
+    layer.src = src;
+    layer.classList.add('is-active');
+  }
+
+  function swapBackdrop(src) {
+    if (!src) return;
+    const normalized = new URL(src, document.baseURI).href;
+    if (normalized === currentSrc || normalized === pendingSrc) return;
+    pendingSrc = normalized;
+    const previousLayerIndex = activeLayer;
+    const nextLayerIndex = activeLayer === 0 ? 1 : 0;
+    const nextLayer = layers[nextLayerIndex];
+    const preload = new Image();
+    preload.onload = function () {
+      if (normalized !== pendingSrc) return;
+      setLayer(nextLayer, normalized);
+      layers[previousLayerIndex].classList.remove('is-active');
+      activeLayer = nextLayerIndex;
+      currentSrc = normalized;
+      pendingSrc = '';
+    };
+    preload.src = normalized;
+  }
+
+  if (firstSrc) {
+    const normalized = new URL(firstSrc, document.baseURI).href;
+    setLayer(layers[activeLayer], normalized);
+    currentSrc = normalized;
+  }
+
+  function updateBackdrop() {
+    frame = 0;
+    const imagesInView = galleryImages();
+    if (!imagesInView.length) return;
+    const viewportCenter = window.innerHeight / 2;
+    let bestImage = imagesInView[0];
+    let bestScore = -Infinity;
+
+    imagesInView.forEach((image) => {
+      const rect = image.getBoundingClientRect();
+      const visibleTop = Math.max(rect.top, 0);
+      const visibleBottom = Math.min(rect.bottom, window.innerHeight);
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+      const visibility = visibleHeight / Math.max(rect.height, 1);
+      const centerDistance = Math.abs((rect.top + rect.bottom) / 2 - viewportCenter) / Math.max(window.innerHeight, 1);
+      const score = visibility - centerDistance * .28;
+      if (score > bestScore) {
+        bestScore = score;
+        bestImage = image;
+      }
+    });
+
+    swapBackdrop(bestImage.currentSrc || bestImage.src);
+  }
+
+  function scheduleBackdropUpdate() {
+    if (!frame) frame = window.requestAnimationFrame(updateBackdrop);
+  }
+
+  window.addEventListener('scroll', scheduleBackdropUpdate, { passive: true });
+  window.addEventListener('resize', scheduleBackdropUpdate, { passive: true });
+  gallery.addEventListener('load', scheduleBackdropUpdate, true);
+  scheduleBackdropUpdate();
+})();
+</script>

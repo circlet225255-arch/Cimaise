@@ -1483,7 +1483,7 @@
                 return;
             }
 
-            const images = document.querySelectorAll('img[data-src], img:not([data-src])');
+            const images = document.querySelectorAll('img[data-src], img:not([data-src]):not([data-album-backdrop-image])');
             
             const imageObserver = new IntersectionObserver((entries, observer) => {
                 entries.forEach(entry => {

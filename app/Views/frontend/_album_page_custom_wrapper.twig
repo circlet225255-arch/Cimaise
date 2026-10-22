@@ -3,6 +3,7 @@
 {% set needs_masonry = true %}
 
 {% block content %}
+  {% include 'frontend/_album_photo_backdrop.twig' %}
   {% if custom_page_template %}
     {% include custom_page_template %}
   {% else %}
@@ -14,5 +15,6 @@
 
 {% block scripts %}
   {{ parent() }}
+  {% include 'frontend/_album_photo_backdrop_script.twig' %}
   {% include 'frontend/_album_gallery_scripts.twig' %}
 {% endblock %}

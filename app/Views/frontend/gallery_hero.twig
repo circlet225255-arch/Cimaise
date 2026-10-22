@@ -3,6 +3,7 @@
 {% set needs_masonry = true %}
 
 {% block content %}
+{% include 'frontend/_album_photo_backdrop.twig' %}
 {# Hero cover with overlay, title, meta and body; gallery below #}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
   {% include 'frontend/_breadcrumbs.twig' %}
@@ -1347,5 +1348,6 @@
 
 {% block scripts %}
   {{ parent() }}
+  {% include 'frontend/_album_photo_backdrop_script.twig' %}
   <script nonce="{{ csp_nonce() }}" type="module" src="{{ vite_asset('js/hero.js') }}"></script>
 {% endblock %}
