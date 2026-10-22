@@ -6,6 +6,9 @@
 
 {% block content %}
 {% set visible_album_categories = album.categories|default([])|filter(category => category.name|default('')|trim != '') %}
+{% set work_stream_slugs = ['concept', 'event', 'wedding'] %}
+{% set album_work_categories = album.categories|default([])|filter(category => category.slug in work_stream_slugs) %}
+{% set is_work_stream = album.category_slug|default('') in work_stream_slugs or album_work_categories|length > 0 %}
 {# NSFW Age Gate - shown if album is NSFW and user hasn't confirmed (skip for admins) #}
 {% if album.is_nsfw and not is_admin %}
 <div id="nsfw-gate" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 hidden"
@@ -230,11 +233,52 @@ document.addEventListener('click', function(event) {
 <style nonce="{{ csp_nonce() }}">
 /* Keep content visible; no intro hides to avoid flicker */
 [data-gsap] { opacity: 1; transform: none; }
+
+/* Work stream albums use the same high-contrast editorial treatment as their category pages. */
+.album-page--work-stream {
+  color: var(--retro-paper-light, #f4c090);
+}
+
+.album-page--work-stream .text-black,
+.album-page--work-stream .text-gray-900,
+.album-page--work-stream h1,
+.album-page--work-stream h2,
+.album-page--work-stream h3 {
+  color: var(--retro-paper-light, #f4c090) !important;
+}
+
+.album-page--work-stream .text-neutral-600,
+.album-page--work-stream .text-neutral-500,
+.album-page--work-stream .text-gray-600 {
+  color: rgba(244, 192, 144, 0.72) !important;
+}
+
+.album-page--work-stream .text-neutral-400,
+.album-page--work-stream .text-gray-400 {
+  color: rgba(244, 192, 144, 0.52) !important;
+}
+
+.album-page--work-stream .border-neutral-200,
+.album-page--work-stream .border-neutral-300 {
+  border-color: rgba(244, 192, 144, 0.25) !important;
+}
+
+.album-page--work-stream .album-empty-state {
+  max-width: 42rem;
+  margin: 1rem auto 4rem;
+  padding: clamp(2rem, 6vw, 4rem);
+  border: 1px dashed rgba(244, 192, 144, 0.35);
+  background: rgba(244, 192, 144, 0.06);
+}
+
+.album-page--work-stream .album-empty-state h2 {
+  margin-bottom: 0.75rem;
+}
 </style>
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4{% if is_work_stream %} album-page--work-stream{% endif %}">
   {% include 'frontend/_breadcrumbs.twig' %}
 </div>
-<div id="album-main-content">
+<div id="album-main-content{% if is_work_stream %} album-page--work-stream{% endif %}">
 <!-- Template Album 2 - Hero Header -->
 {% if template_settings.hero|default(false) and template_settings.coverBackground|default(false) %}
 <div class="relative w-full h-screen flex items-center justify-center overflow-hidden">
@@ -949,7 +993,7 @@ document.addEventListener('click', function(event) {
     {% endif %}
     
     {% if images|length == 0 %}
-    <div class="text-center py-20">
+    <div class="text-center py-20 album-empty-state">
         <h2 class="text-2xl font-light text-neutral-600 mb-4">{{ trans('album.empty') }}</h2>
         <p class="text-neutral-500">{{ trans('album.empty_message') }}</p>
     </div>

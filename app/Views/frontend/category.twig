@@ -1,88 +1,338 @@
 {% extends "frontend/_layout.twig" %}
 
 {% block content %}
-{# Hook: frontend_category_before - Before entire category page #}
+{% set work_stream_slugs = ['concept', 'event', 'wedding'] %}
+{% set is_work_stream = category.slug in work_stream_slugs %}
+
 {{ do_action('frontend_category_before', {category: category, albums: albums, base_path: base_path}) }}
 
+{% if is_work_stream %}
+<section class="work-stream-template" data-work-stream="{{ category.slug|e('html_attr') }}" aria-label="{{ category.name|e }}">
+  <div class="work-stream__stage">
+    <div class="work-stream__background" aria-hidden="true">
+      {% for album in albums %}
+        {% set slide_image = '' %}
+        {% if album.cover and album.cover.variants is iterable %}
+          {% for variant in album.cover.variants %}
+            {% if not slide_image and (variant.variant is not defined or variant.variant != 'blur') %}
+              {% set slide_image = variant.path starts with '/' ? base_path ~ variant.path : variant.path %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        {% if not slide_image and album.cover_image %}
+          {% set slide_image = album.cover_image.preview_path|default(album.cover_image.path)|default('') %}
+          {% if slide_image starts with '/' %}{% set slide_image = base_path ~ slide_image %}{% endif %}
+        {% endif %}
+        <div class="work-stream__background-layer{% if loop.first %} is-active{% endif %}" data-background-index="{{ loop.index0 }}"{% if slide_image %} style="--slide-image: url('{{ slide_image|e('html_attr') }}')"{% endif %}></div>
+      {% endfor %}
+    </div>
+    <div class="work-stream__scrim" aria-hidden="true"></div>
+
+    <header class="work-stream__header">
+      <a class="work-stream__brand" href="{{ base_path }}/" aria-label="{{ site_title|default('Portfolio')|e }}">Voyage</a>
+      <nav class="work-stream__nav" aria-label="Primary">
+        <a class="is-active" href="{{ base_path }}/category/{{ category.slug }}" data-work-nav="destinations">Destinations</a>
+        <a href="{{ base_path }}/#selected-rolls" data-work-nav="tripTypes">Trip Types</a>
+        <a href="{{ base_path }}/#selected-rolls" data-work-nav="getInspired">Get Inspired</a>
+        <a href="{{ base_path }}/#selected-rolls" data-work-nav="specialOffers">Special Offers</a>
+      </nav>
+      <div class="work-stream__actions">
+        <button type="button" class="work-stream__search" aria-label="Search" data-work-search><span aria-hidden="true"></span></button>
+        <a class="work-stream__cta" href="{{ base_path }}/about#contact">Book now</a>
+      </div>
+    </header>
+
+    <div class="work-stream__carousel">
+      <button type="button" class="work-stream__arrow work-stream__arrow--prev" data-work-prev aria-label="Previous project">‹</button>
+      <div class="work-stream__track" data-work-track role="list">
+        {% for album in albums %}
+          {% set slide_image = '' %}
+          {% if album.cover and album.cover.variants is iterable %}
+            {% for variant in album.cover.variants %}
+              {% if not slide_image and (variant.variant is not defined or variant.variant != 'blur') %}
+                {% set slide_image = variant.path starts with '/' ? base_path ~ variant.path : variant.path %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% if not slide_image and album.cover_image %}
+            {% set slide_image = album.cover_image.preview_path|default(album.cover_image.path)|default('') %}
+            {% if slide_image starts with '/' %}{% set slide_image = base_path ~ slide_image %}{% endif %}
+          {% endif %}
+          {% set fallback_subtitle = category.slug == 'concept'
+            ? 'Ideas take shape here'
+            : (category.slug == 'event' ? 'Moments made to be remembered' : 'Stories made to last') %}
+          {% set slide_title = album.title|default('')|trim %}
+          {% if not slide_title %}{% set slide_title = album.slug|replace({'-': ' '})|title %}{% endif %}
+          <article class="work-stream__slide{% if loop.first %} is-active{% endif %}" data-work-slide data-index="{{ loop.index0 }}" role="listitem" aria-label="{{ slide_title|e }}">
+            <a class="work-stream__slide-link" href="{{ base_path }}/album/{{ album.slug|e }}">
+              <div class="work-stream__slide-media{% if not slide_image %} is-empty{% endif %}"{% if slide_image %} style="--slide-image: url('{{ slide_image|e('html_attr') }}')"{% endif %}>
+                {% if slide_image %}
+                  <img src="{{ slide_image }}" alt="{{ album.title|e }}" loading="lazy" decoding="async">
+                {% else %}
+                  <span class="work-stream__empty-mark" aria-hidden="true">+</span>
+                {% endif %}
+              </div>
+              <div class="work-stream__slide-copy">
+                <h2>{{ slide_title|e }}</h2>
+                <span class="work-stream__slide-divider" aria-hidden="true"></span>
+                <p>{{ album.excerpt|default(fallback_subtitle)|trim|e }}</p>
+              </div>
+            </a>
+          </article>
+        {% endfor %}
+      </div>
+      <button type="button" class="work-stream__arrow work-stream__arrow--next" data-work-next aria-label="Next project">›</button>
+      <div class="work-stream__pagination" role="tablist" aria-label="Projects">
+        {% for album in albums %}
+          <button type="button" data-work-dot="{{ loop.index0 }}" role="tab" aria-label="Open {{ album.title|default(album.slug)|e }}"{% if loop.first %} aria-selected="true"{% else %} aria-selected="false"{% endif %}></button>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% else %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
   {% include 'frontend/_breadcrumbs.twig' %}
 </div>
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-    {# Hook: frontend_category_header_before - Before category header #}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 category-page">
     {{ do_action('frontend_category_header_before', {category: category, base_path: base_path}) }}
-
-    <!-- Category header -->
     <div class="text-center py-12">
-        <h1 class="text-3xl md:text-4xl font-light text-black mb-6">
-            {{ category.name|e }}
-        </h1>
+        <h1 class="text-3xl md:text-4xl font-light text-black mb-6">{{ category.name|e }}</h1>
         <p class="text-lg text-neutral-600">
             {{ albums|length == 1 ? trans('category.album_in_category') : trans('category.albums_in_category', {count: albums|length}) }}
         </p>
-
-        {# Hook: frontend_category_header_meta - Add custom metadata to category header #}
         {{ do_action('frontend_category_header_meta', {category: category, base_path: base_path}) }}
     </div>
-
-    {# Hook: frontend_category_header_after - After category header #}
     {{ do_action('frontend_category_header_after', {category: category, base_path: base_path}) }}
-
-    {# Hook: frontend_category_albums_before - Before albums grid #}
     {{ do_action('frontend_category_albums_before', {category: category, albums: albums, base_path: base_path}) }}
-
-    <!-- Albums grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {% for album in albums %}
             {% include "frontend/_album_card.twig" %}
         {% endfor %}
     </div>
-    
     {% if albums|length == 0 %}
     <div class="text-center py-20">
         <h2 class="text-2xl font-light text-neutral-600 mb-4">{{ trans('category.no_albums_title') }}</h2>
-        <p class="text-neutral-500">
-            <a href="{{ base_path }}/" class="hover:text-black transition-colors">{{ trans('category.no_albums_text') }}</a>
-        </p>
+        <p class="text-neutral-500"><a href="{{ base_path }}/" class="hover:text-black transition-colors">{{ trans('category.no_albums_text') }}</a></p>
     </div>
     {% endif %}
-
-    {# Hook: frontend_category_albums_after - After albums grid #}
     {{ do_action('frontend_category_albums_after', {category: category, albums: albums, base_path: base_path}) }}
-
 </div>
 
-{# Hook: frontend_category_other_before - Before other categories section #}
-{{ do_action('frontend_category_other_before', {category: category, categories: categories, base_path: base_path}) }}
-
-<!-- Other categories -->
-{% if categories|length > 1 %}
+{% set other_categories = categories|default([]) %}
+{% if other_categories|length > 1 %}
 <section class="border-t border-neutral-200 mt-16 pt-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-2xl font-light text-center mb-12">{{ trans('category.other_categories') }}</h2>
-        
         <div class="flex flex-wrap justify-center gap-4">
-            {% for cat in categories %}
+            {% for cat in other_categories %}
                 {% if cat.slug != category.slug %}
-                <a href="{{ base_path }}/category/{{ cat.slug }}" 
-                   class="text-sm text-neutral-600 hover:text-black border border-neutral-200 rounded px-4 py-2 transition-colors">
-                    {{ cat.name|e }}
-                </a>
+                <a href="{{ base_path }}/category/{{ cat.slug }}" class="text-sm text-neutral-600 hover:text-black border border-neutral-200 rounded px-4 py-2 transition-colors">{{ cat.name|e }}</a>
                 {% endif %}
             {% endfor %}
         </div>
     </div>
 </section>
 {% endif %}
+{% endif %}
 
-{# Hook: frontend_category_other_after - After other categories section #}
-{{ do_action('frontend_category_other_after', {category: category, categories: categories, base_path: base_path}) }}
-
-{# Hook: frontend_category_after - After entire category page #}
+{% if is_work_stream %}
+  {{ do_action('frontend_category_other_before', {category: category, categories: categories, base_path: base_path}) }}
+  {{ do_action('frontend_category_other_after', {category: category, categories: categories, base_path: base_path}) }}
+{% endif %}
 {{ do_action('frontend_category_after', {category: category, albums: albums, base_path: base_path}) }}
 {% endblock %}
 
+{% block styles %}
+<style nonce="{{ csp_nonce() }}">
+  body:has(.work-stream-template) { background: #f7d4a8 !important; }
+  body:has(.work-stream-template) #main-header,
+  body:has(.work-stream-template) footer { display: none !important; }
+  body:has(.work-stream-template) #main-content { min-height: 100svh; }
+
+  .work-stream-template {
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    padding: clamp(1rem, 5vw, 4.5rem);
+    background: #f7d4a8;
+    color: #fff;
+  }
+
+  .work-stream__stage {
+    position: relative;
+    isolation: isolate;
+    width: min(100%, 72rem);
+    height: min(84svh, 52rem);
+    min-height: min(35rem, calc(100svh - 2rem));
+    overflow: hidden;
+    background: #101719;
+    box-shadow: 0 1.5rem 2.8rem rgba(92, 48, 20, 0.22);
+  }
+
+  .work-stream__background,
+  .work-stream__background-layer,
+  .work-stream__scrim { position: absolute; inset: 0; }
+  .work-stream__background { z-index: -3; overflow: hidden; background: #101719; }
+  .work-stream__background-layer {
+    opacity: 0;
+    transform: scale(1.1);
+    background: #101719 var(--slide-image) center / cover no-repeat;
+    filter: blur(1.2rem) saturate(0.75) brightness(0.65);
+    transition: opacity 0.8s ease;
+  }
+  .work-stream__background-layer.is-active { opacity: 1; }
+  .work-stream__scrim {
+    z-index: -2;
+    background: linear-gradient(180deg, rgba(6, 11, 13, 0.8) 0%, rgba(6, 11, 13, 0.16) 38%, rgba(6, 11, 13, 0.66) 100%);
+  }
+
+  .work-stream__header {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 4.5rem);
+    min-height: 4.5rem;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(4, 10, 12, 0.2);
+  }
+  .work-stream__brand {
+    flex: 0 0 auto;
+    color: #fff;
+    font-family: Georgia, serif;
+    font-size: clamp(1.1rem, 2vw, 1.45rem);
+    font-weight: 700;
+    letter-spacing: -0.06em;
+  }
+  .work-stream__nav { display: flex; align-items: stretch; align-self: stretch; gap: clamp(1rem, 3vw, 2.75rem); }
+  .work-stream__nav a,
+  .work-stream__search,
+  .work-stream__cta {
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+  .work-stream__nav a { position: relative; display: inline-flex; align-items: center; white-space: nowrap; }
+  .work-stream__nav a::after {
+    position: absolute;
+    right: 0;
+    bottom: 0.75rem;
+    left: 0;
+    height: 1px;
+    background: #fff;
+    content: '';
+    opacity: 0;
+    transform: scaleX(0.2);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .work-stream__nav a.is-active::after,
+  .work-stream__nav a:hover::after { opacity: 0.9; transform: scaleX(1); }
+  .work-stream__actions { display: flex; align-items: center; gap: 1rem; margin-left: auto; }
+  .work-stream__search { position: relative; width: 1rem; height: 1rem; border: 0; background: transparent; cursor: pointer; }
+  .work-stream__search::before {
+    position: absolute; top: 0.05rem; left: 0.05rem; width: 0.5rem; height: 0.5rem;
+    border: 1px solid #fff; border-radius: 50%; content: '';
+  }
+  .work-stream__search::after {
+    position: absolute; right: 0.08rem; bottom: 0.1rem; width: 0.35rem; height: 1px;
+    background: #fff; content: ''; transform: rotate(45deg); transform-origin: right center;
+  }
+  .work-stream__cta {
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: #f47a25;
+    color: #fff;
+    font-size: 0.52rem;
+    box-shadow: 0 0.3rem 0.8rem rgba(244, 122, 37, 0.25);
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .work-stream__cta:hover { background: #ff9346; transform: translateY(-1px); }
+
+  .work-stream__carousel { position: relative; height: calc(100% - 4.5rem); overflow: hidden; }
+  .work-stream__track { position: absolute; inset: 0; perspective: 1100px; perspective-origin: 50% 44%; transform-style: preserve-3d; }
+  .work-stream__slide {
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    width: clamp(8.25rem, 18vw, 15rem);
+    height: clamp(13rem, 49vh, 25rem);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) translateX(0) translateZ(-220px) rotateY(0deg) scale(0.55);
+    transform-style: preserve-3d;
+    transition: transform 0.9s cubic-bezier(0.22, 0.8, 0.24, 1), opacity 0.7s ease, filter 0.7s ease;
+    filter: blur(0.1rem) brightness(0.55);
+  }
+  .work-stream__slide.is-active {
+    z-index: 8;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) translateX(0) translateZ(110px) rotateY(0deg) scale(1.04);
+    filter: none;
+  }
+  .work-stream__slide.is-left-1,
+  .work-stream__slide.is-right-1,
+  .work-stream__slide.is-left-2,
+  .work-stream__slide.is-right-2 { z-index: 4; opacity: 0.92; pointer-events: auto; }
+  .work-stream__slide.is-left-1 { transform: translate(-50%, -50%) translateX(-92%) translateZ(20px) rotateY(10deg) scale(0.92); }
+  .work-stream__slide.is-right-1 { transform: translate(-50%, -50%) translateX(92%) translateZ(20px) rotateY(-10deg) scale(0.92); }
+  .work-stream__slide.is-left-2 { z-index: 2; opacity: 0.72; transform: translate(-50%, -50%) translateX(-174%) translateZ(-70px) rotateY(15deg) scale(0.78); }
+  .work-stream__slide.is-right-2 { z-index: 2; opacity: 0.72; transform: translate(-50%, -50%) translateX(174%) translateZ(-70px) rotateY(-15deg) scale(0.78); }
+  .work-stream__slide-link,
+  .work-stream__slide-media { display: block; width: 100%; height: 100%; }
+  .work-stream__slide-link { position: relative; overflow: hidden; background: #172124; box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.34); }
+  .work-stream__slide-media { position: relative; overflow: hidden; background: #1d2c2e var(--slide-image) center / cover no-repeat; }
+  .work-stream__slide-media::after { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0.04) 42%, rgba(0, 0, 0, 0.66) 100%); content: ''; }
+  .work-stream__slide-media img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.9s cubic-bezier(0.22, 0.8, 0.24, 1); }
+  .work-stream__slide.is-active:hover img { transform: scale(1.035); }
+  .work-stream__slide-media.is-empty {
+    display: grid;
+    place-items: center;
+    background: radial-gradient(circle at 35% 25%, rgba(226, 180, 125, 0.3), transparent 32%), linear-gradient(145deg, #5d4f3a, #1a2424 65%);
+  }
+  .work-stream__empty-mark { display: grid; width: 3rem; height: 3rem; place-items: center; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 50%; color: rgba(255, 255, 255, 0.8); font-size: 1.5rem; }
+  .work-stream__slide-copy {
+    position: absolute; right: 0.75rem; bottom: 1.75rem; left: 0.75rem; z-index: 2;
+    text-align: center; opacity: 0; transform: translateY(0.5rem);
+    transition: opacity 0.45s ease 0.16s, transform 0.45s ease 0.16s;
+  }
+  .work-stream__slide.is-active .work-stream__slide-copy { opacity: 1; transform: translateY(0); }
+  .work-stream__slide-copy h2 { margin: 0; color: #fff !important; font-size: clamp(1rem, 2.1vw, 1.75rem); font-weight: 700; letter-spacing: 0.12em; line-height: 1.08; text-transform: uppercase; text-wrap: balance; text-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.3); }
+  .work-stream__slide-divider { display: block; width: 2.2rem; height: 2px; margin: 0.9rem auto 0.65rem; background: #fff; }
+  .work-stream__slide-divider::after { display: block; width: 1.2rem; height: 1px; margin: 0.25rem auto 0; background: rgba(255, 255, 255, 0.75); content: ''; }
+  .work-stream__slide-copy p { margin: 0; color: rgba(255, 255, 255, 0.88); font-size: clamp(0.58rem, 1.15vw, 0.78rem); letter-spacing: 0.03em; }
+  .work-stream__arrow { position: absolute; top: 52%; z-index: 12; display: grid; width: 2.4rem; height: 3.5rem; place-items: center; border: 0; background: transparent; color: #fff; cursor: pointer; font-family: Georgia, serif; font-size: 2.4rem; font-weight: 300; line-height: 1; opacity: 0.9; transform: translateY(-50%); transition: opacity 0.2s ease, transform 0.2s ease; }
+  .work-stream__arrow:hover { opacity: 1; transform: translateY(-50%) scale(1.12); }
+  .work-stream__arrow--prev { left: clamp(0.25rem, 3vw, 2rem); }
+  .work-stream__arrow--next { right: clamp(0.25rem, 3vw, 2rem); }
+  .work-stream__pagination { position: absolute; bottom: 1.5rem; left: 50%; z-index: 15; display: flex; gap: 0.35rem; transform: translateX(-50%); }
+  .work-stream__pagination button { width: 0.28rem; height: 0.28rem; padding: 0; border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.45); cursor: pointer; transition: width 0.2s ease, border-radius 0.2s ease, background 0.2s ease; }
+  .work-stream__pagination button[aria-selected="true"] { width: 1.05rem; border-radius: 999px; background: #fff; }
+
+  @media (max-width: 800px) {
+    .work-stream-template { padding: 0; }
+    .work-stream__stage { width: 100%; height: 100svh; min-height: 36rem; }
+    .work-stream__header { min-height: 4.25rem; gap: 1rem; }
+    .work-stream__nav { display: none; }
+    .work-stream__slide { width: clamp(10rem, 42vw, 14rem); height: clamp(17rem, 58vh, 24rem); }
+    .work-stream__slide.is-left-1 { transform: translate(-50%, -50%) translateX(-88%) translateZ(0) rotateY(10deg) scale(0.83); }
+    .work-stream__slide.is-right-1 { transform: translate(-50%, -50%) translateX(88%) translateZ(0) rotateY(-10deg) scale(0.83); }
+    .work-stream__slide.is-left-2, .work-stream__slide.is-right-2 { opacity: 0; pointer-events: none; }
+    .work-stream__arrow--prev { left: 0.25rem; }
+    .work-stream__arrow--next { right: 0.25rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .work-stream__slide, .work-stream__slide-copy, .work-stream__background-layer, .work-stream__slide-media img { transition-duration: 0.01ms !important; }
+  }
+</style>
+{% endblock %}
+
 {% block scripts %}
+{% set is_work_stream = category.slug in ['concept', 'event', 'wedding'] %}
 <script type="application/ld+json" nonce="{{ csp_nonce() }}">
 {
   "@context": "https://schema.org",
@@ -92,4 +342,102 @@
   "description": {{ meta_description|default('')|json_encode|raw }}
 }
 </script>
+{% if is_work_stream %}
+<script nonce="{{ csp_nonce() }}">
+(function () {
+  var root = document.querySelector('.work-stream-template');
+  if (!root) return;
+  var slides = Array.prototype.slice.call(root.querySelectorAll('[data-work-slide]'));
+  var backgrounds = Array.prototype.slice.call(root.querySelectorAll('[data-background-index]'));
+  var dots = Array.prototype.slice.call(root.querySelectorAll('[data-work-dot]'));
+  var prev = root.querySelector('[data-work-prev]');
+  var next = root.querySelector('[data-work-next]');
+  var activeIndex = 0;
+  var autoplayMs = 4200;
+  var timer = null;
+  var positionClasses = ['is-active', 'is-left-1', 'is-right-1', 'is-left-2', 'is-right-2'];
+
+  function relativePosition(index) {
+    var total = slides.length;
+    if (!total) return 0;
+    var distance = (index - activeIndex + total) % total;
+    if (distance > total / 2) distance -= total;
+    return distance;
+  }
+
+  function classForPosition(position) {
+    if (position === 0) return 'is-active';
+    if (position === -1) return 'is-left-1';
+    if (position === 1) return 'is-right-1';
+    if (position === -2) return 'is-left-2';
+    if (position === 2) return 'is-right-2';
+    return '';
+  }
+
+  function render() {
+    slides.forEach(function (slide, index) {
+      positionClasses.forEach(function (name) { slide.classList.remove(name); });
+      var position = relativePosition(index);
+      var className = classForPosition(position);
+      if (className) slide.classList.add(className);
+      slide.setAttribute('aria-hidden', position === 0 ? 'false' : 'true');
+    });
+    backgrounds.forEach(function (background, index) { background.classList.toggle('is-active', index === activeIndex); });
+    dots.forEach(function (dot, index) { dot.setAttribute('aria-selected', index === activeIndex ? 'true' : 'false'); });
+  }
+
+  function stop() {
+    if (timer) window.clearInterval(timer);
+    timer = null;
+  }
+
+  function restart() {
+    stop();
+    if (slides.length > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      timer = window.setInterval(function () {
+        activeIndex = (activeIndex + 1) % slides.length;
+        render();
+      }, autoplayMs);
+    }
+  }
+
+  function move(step) {
+    if (slides.length < 2) return;
+    activeIndex = (activeIndex + step + slides.length) % slides.length;
+    render();
+    restart();
+  }
+
+  if (prev) prev.addEventListener('click', function () { move(-1); });
+  if (next) next.addEventListener('click', function () { move(1); });
+  dots.forEach(function (dot) {
+    dot.addEventListener('click', function () {
+      activeIndex = Number(dot.getAttribute('data-work-dot')) || 0;
+      render();
+      restart();
+    });
+  });
+  root.addEventListener('mouseenter', stop);
+  root.addEventListener('mouseleave', restart);
+  root.addEventListener('focusin', stop);
+  root.addEventListener('focusout', restart);
+  document.addEventListener('keydown', function (event) {
+    if (!root.matches(':hover') && !root.contains(document.activeElement)) return;
+    if (event.key === 'ArrowLeft') move(-1);
+    if (event.key === 'ArrowRight') move(1);
+  });
+
+  fetch('{{ base_path }}/work-stream-template.json', { credentials: 'same-origin' })
+    .then(function (response) { return response.ok ? response.json() : null; })
+    .then(function (config) {
+      if (config && config.carousel && Number(config.carousel.autoplayMs) > 0) autoplayMs = Number(config.carousel.autoplayMs);
+      restart();
+    })
+    .catch(function () { restart(); });
+
+  render();
+  restart();
+}());
+</script>
+{% endif %}
 {% endblock %}

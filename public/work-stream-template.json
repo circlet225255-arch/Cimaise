@@ -1,0 +1,61 @@
+{
+  "version": "1.0.0",
+  "reference": {
+    "source": "user-supplied video: - (2).mp4",
+    "durationSeconds": 8.395,
+    "frameRate": 60,
+    "frameSize": "544x408",
+    "observedPattern": "Voyage-style destination carousel with five layered cards, blurred active background and dark editorial navigation."
+  },
+  "canvas": {
+    "aspectRatio": "4:3",
+    "outerBackground": "#f7d4a8",
+    "panelBackground": "#101719",
+    "panelMaxWidth": "72rem",
+    "panelShadow": "0 1.5rem 2.8rem rgba(92, 48, 20, 0.22)"
+  },
+  "header": {
+    "brand": "Voyage",
+    "links": [
+      { "id": "destinations", "label": "Destinations", "active": true },
+      { "id": "tripTypes", "label": "Trip Types", "active": false },
+      { "id": "getInspired", "label": "Get Inspired", "active": false },
+      { "id": "specialOffers", "label": "Special Offers", "active": false }
+    ],
+    "search": true,
+    "cta": "Book now",
+    "accent": "#f47a25"
+  },
+  "carousel": {
+    "visibleCards": 5,
+    "mobileVisibleCards": 1,
+    "perspectivePx": 1100,
+    "transitionMs": 900,
+    "autoplayMs": 4200,
+    "backgroundBlurPx": 19,
+    "backgroundBrightness": 0.65,
+    "centerScale": 1.04,
+    "sideScale": 0.92,
+    "farSideScale": 0.78,
+    "supportsKeyboard": true,
+    "supportsPointer": true,
+    "supportsReducedMotion": true
+  },
+  "streams": {
+    "concept": {
+      "label": "Concept",
+      "subtitle": "Ideas take shape here",
+      "fallbackSubtitle": "A point of view in motion"
+    },
+    "event": {
+      "label": "Event",
+      "subtitle": "Moments made to be remembered",
+      "fallbackSubtitle": "A story made for the room"
+    },
+    "wedding": {
+      "label": "Wedding",
+      "subtitle": "Stories made to last",
+      "fallbackSubtitle": "A day held in memory"
+    }
+  }
+}

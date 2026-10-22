@@ -1,7 +1,10 @@
 {% extends "frontend/_layout.twig" %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+{% set work_stream_slugs = ['concept', 'event', 'wedding'] %}
+{% set album_work_categories = album.categories|default([])|filter(cat => cat.slug in work_stream_slugs) %}
+{% set is_work_stream = album.category_slug|default('') in work_stream_slugs or album_work_categories|length > 0 %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 album-page{% if is_work_stream %} album-page--work-stream{% endif %}">
   <div class="max-w-4xl mx-auto text-center pb-12">
     <div class="mb-4 flex flex-wrap gap-2 justify-center">
       {% if album.categories is defined and album.categories|length > 0 %}
@@ -219,6 +222,7 @@
     {% endif %}
   {% endfor %}
 
+  {% if images|length > 0 %}
   <section class="relative mt-10">
     <div class="pointer-events-none absolute inset-x-0 top-0 h-28 z-20 masonry-veil-top"></div>
     <div class="pointer-events-none absolute inset-x-0 bottom-0 h-28 z-20 masonry-veil-bottom"></div>
@@ -254,12 +258,68 @@
       </div>
     </div>
   </section>
+  {% else %}
+  <div class="album-empty-state text-center py-20">
+    <div class="album-empty-state__mark" aria-hidden="true">+</div>
+    <h2 class="text-2xl font-light text-neutral-600 mb-4">{{ trans('album.empty') }}</h2>
+    <p class="text-neutral-500">{{ trans('album.empty_message') }}</p>
+  </div>
+  {% endif %}
 </div>
 
 {# Image structured data (ImageGallery + per-image ImageObject) #}
 {% include 'frontend/_image_schema.twig' %}
 
 <style nonce="{{ csp_nonce() }}">
+.album-page--work-stream {
+  color: var(--retro-paper-light, #f4c090);
+}
+
+.album-page--work-stream .text-black,
+.album-page--work-stream .text-gray-900,
+.album-page--work-stream h1,
+.album-page--work-stream h2,
+.album-page--work-stream h3 {
+  color: var(--retro-paper-light, #f4c090) !important;
+}
+
+.album-page--work-stream .text-neutral-600,
+.album-page--work-stream .text-neutral-500,
+.album-page--work-stream .text-gray-600 {
+  color: rgba(244, 192, 144, 0.72) !important;
+}
+
+.album-page--work-stream .text-neutral-400,
+.album-page--work-stream .text-gray-400 {
+  color: rgba(244, 192, 144, 0.52) !important;
+}
+
+.album-page--work-stream .border-neutral-200,
+.album-page--work-stream .border-neutral-300 {
+  border-color: rgba(244, 192, 144, 0.25) !important;
+}
+
+.album-page--work-stream .album-empty-state {
+  max-width: 42rem;
+  margin: 1rem auto 4rem;
+  padding: clamp(2rem, 6vw, 4rem);
+  border: 1px dashed rgba(244, 192, 144, 0.35);
+  background: rgba(244, 192, 144, 0.06);
+}
+
+.album-page--work-stream .album-empty-state__mark {
+  display: inline-grid;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1rem;
+  place-items: center;
+  border: 1px solid rgba(244, 192, 144, 0.45);
+  border-radius: 999px;
+  color: var(--retro-paper-light, #f4c090);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
 .m-mobile-wrap { display:block; }
 .m-desktop-wrap { display:none; }
 @media (min-width:768px){

@@ -165,17 +165,18 @@
     </div>
     <div class="dream-work-grid">
       {% set work_categories = [
-        {'label': 'Wedding', 'slug': 'nghi-le-ngay-vui'},
-        {'label': 'Concept', 'slug': 'chan-dung-anh-nhin-cu-chi'},
-        {'label': 'Event', 'slug': 'khong-gian-anh-den-va-huong-vi'}
+        {'label': 'Concept', 'slug': 'concept', 'feature_album': 'chan-dung-anh-nhin-cu-chi'},
+        {'label': 'Event', 'slug': 'event', 'feature_album': 'khong-gian-anh-den-va-huong-vi'},
+        {'label': 'Wedding', 'slug': 'wedding', 'feature_album': 'nghi-le-ngay-vui'}
       ] %}
       {% for work in work_categories %}
-        {% set feature_image = all_images|default([])|filter(image => image.album_slug == work.slug)|first %}
-        {% set work_album = albums|default([])|filter(album => album.slug == work.slug)|first %}
-        {% if feature_image and work_album %}
-          {% set is_wedding_card = work.slug == 'nghi-le-ngay-vui' %}
-          {% set is_concept_card = work.slug == 'chan-dung-anh-nhin-cu-chi' %}
-          <a class="dream-work-card" data-dream-reveal style="--dream-reveal-delay: {{ loop.index0 * 90 }}ms" href="{{ base_path }}/album/{{ work.slug|e('html_attr') }}" aria-label="Mở bộ ảnh {{ work.label|e('html_attr') }}">
+        {% set feature_image = all_images|default([])|filter(image => image.album_slug == work.feature_album)|first %}
+        {% set work_album = albums|default([])|filter(album => album.slug == work.feature_album)|first %}
+        {% set work_category = categories|default([])|filter(category => category.slug == work.slug)|first %}
+        {% if feature_image or work_album or work_category %}
+          {% set is_wedding_card = work.slug == 'wedding' %}
+          {% set is_concept_card = work.slug == 'concept' %}
+          <a class="dream-work-card" data-dream-reveal style="--dream-reveal-delay: {{ loop.index0 * 90 }}ms" href="{{ base_path }}/category/{{ work.slug|e('html_attr') }}" aria-label="Mở luồng {{ work.label|e('html_attr') }}">
             <div class="dream-work-card__image" style="--dream-work-image-position: center center;{% if not is_concept_card and not is_wedding_card %} view-transition-name: album-{{ work.slug|replace({'-': '_'})|e('html_attr') }};{% endif %}">
               {% if is_concept_card %}
                 <img src="{{ base_path }}/assets/concept-img-4030-portrait.jpg" alt="" loading="lazy" decoding="async">
