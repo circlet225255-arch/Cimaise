@@ -9,10 +9,11 @@
   },
   "canvas": {
     "aspectRatio": "4:3",
-    "outerBackground": "#f7d4a8",
+    "outerBackground": "#101719",
     "panelBackground": "#101719",
-    "panelMaxWidth": "72rem",
-    "panelShadow": "0 1.5rem 2.8rem rgba(92, 48, 20, 0.22)"
+    "fullBleed": true,
+    "panelMaxWidth": "none",
+    "panelShadow": "none"
   },
   "header": {
     "brand": "Voyage",
