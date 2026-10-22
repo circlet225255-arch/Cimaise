@@ -25,19 +25,26 @@
 {% set concept_backdrop = all_images|default([])|slice(2, 1)|first|default(hero_backdrop) %}
 {% set mood_backdrop = all_images|default([])|slice(14, 1)|first|default(concept_backdrop) %}
 {% set closing_backdrop = all_images|default([])|last|default(hero_backdrop) %}
+{% set my_style_slides = [
+  'frame-01.webp',
+  'frame-02.webp',
+  'frame-03.webp',
+  'frame-04.webp',
+  'frame-05.webp',
+  'frame-06.webp',
+  'frame-07.webp'
+] %}
+
+<div class="dream-beats-home__background" data-dream-home-background aria-hidden="true">
+  {% for slide in my_style_slides %}
+  <div class="dream-beats-home__background-layer{% if loop.first %} is-active{% endif %}" data-style-background-layer style="--dream-home-bg-image: url('{{ base_path }}/assets/my-style-slides/{{ slide|e('html_attr') }}')"></div>
+  {% endfor %}
+  <div class="dream-beats-home__background-scrim"></div>
+</div>
 
 <div class="selects-home coppola-home dream-beats-home" data-selects-home>
   <div class="dream-beats-opening">
     <section class="coppola-hero dream-style-carousel" aria-labelledby="my-style-title" aria-roledescription="carousel" aria-describedby="my-style-carousel-help" tabindex="0">
-      {% set my_style_slides = [
-        'frame-01.webp',
-        'frame-02.webp',
-        'frame-03.webp',
-        'frame-04.webp',
-        'frame-05.webp',
-        'frame-06.webp',
-        'frame-07.webp'
-      ] %}
       <div class="coppola-hero__backdrop dream-style-carousel__slides" data-style-carousel aria-hidden="true">
         {% for slide in my_style_slides %}
         <div class="dream-style-carousel__slide{% if loop.first %} is-active{% endif %}" data-style-slide>
@@ -222,6 +229,7 @@ function initDreamSelectsHome() {
   var styleCarousel = document.querySelector('.dream-style-carousel');
   var styleSlidesRoot = styleCarousel && styleCarousel.querySelector('[data-style-carousel]');
   var styleSlides = styleSlidesRoot ? Array.from(styleSlidesRoot.querySelectorAll('[data-style-slide]')) : [];
+  var styleBackgrounds = Array.from(document.querySelectorAll('[data-style-background-layer]'));
   if (styleCarousel && styleSlides.length > 1) {
     var currentStyleSlide = 0;
     var styleAutoplayTimer = 0;
@@ -239,6 +247,9 @@ function initDreamSelectsHome() {
       currentStyleSlide = (index + styleSlides.length) % styleSlides.length;
       styleSlides.forEach(function (slide, slideIndex) {
         slide.classList.toggle('is-active', slideIndex === currentStyleSlide);
+      });
+      styleBackgrounds.forEach(function (background, backgroundIndex) {
+        background.classList.toggle('is-active', backgroundIndex === currentStyleSlide);
       });
       scheduleStyleAutoplay();
     }

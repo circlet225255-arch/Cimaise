@@ -2517,7 +2517,39 @@ body.selects-shell #main-header button:hover { color: var(--retro-oxide); }
   white-space: nowrap;
   border: 0;
 }
+
+/* The homepage shares the work-route treatment: the active hero frame becomes
+   a quiet, enlarged blur behind the editorial panels. */
+body.selects-shell.coppola-home-shell #main-content > .dream-beats-home {
+  position: relative;
+  z-index: 1;
+}
+.dream-beats-home__background {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #101719;
+}
+.dream-beats-home__background-layer {
+  position: absolute;
+  inset: -1.5rem;
+  opacity: 0;
+  background: #101719 var(--dream-home-bg-image) center / cover no-repeat;
+  filter: blur(1.2rem) saturate(.75) brightness(.58);
+  transform: scale(1.08);
+  transition: opacity .8s ease;
+  will-change: opacity;
+}
+.dream-beats-home__background-layer.is-active { opacity: .78; }
+.dream-beats-home__background-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(6 11 13 / 78%) 0%, rgb(6 11 13 / 34%) 42%, rgb(6 11 13 / 82%) 100%);
+}
 @media (prefers-reduced-motion: reduce) {
   .dream-style-carousel__slide,
-  .dream-style-carousel .dream-style-carousel__slide img { transition: none; transform: none; }
+  .dream-style-carousel .dream-style-carousel__slide img,
+  .dream-beats-home__background-layer { transition: none; transform: none; }
 }
