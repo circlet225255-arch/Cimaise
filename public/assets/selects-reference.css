@@ -53,6 +53,13 @@ body.selects-shell #desktop-nav a {
   text-transform: uppercase;
 }
 body.selects-shell #desktop-nav > a:hover { text-decoration: underline; text-underline-offset: .35em; }
+body.selects-shell #desktop-nav { flex-wrap: nowrap; }
+body.selects-shell .site-book-cta {
+  margin-right: .15rem;
+  font-family: var(--selects-mono);
+  font-size: .6rem;
+}
+body.selects-shell .site-book-cta--mobile { margin-right: .75rem; }
 body.selects-shell #header-search-toggle,
 body.selects-shell #mobile-search-toggle,
 body.selects-shell #theme-toggle { display: none !important; }
@@ -446,6 +453,7 @@ body.selects-shell #main-content .cs-kicker { color: var(--selects-muted); }
   body.selects-shell #desktop-nav { gap: .55rem; }
   body.selects-shell #desktop-nav a { font-size: .55rem; letter-spacing: .07em; }
   body.selects-shell #main-header .text-xl { font-size: .83rem; }
+  body.selects-shell .site-book-cta { font-size: .54rem; padding-inline: .7rem; }
   .selects-roll-label { font-size: .54rem; }
   .selects-roll-hint,
   .selects-roll-meta { display: none; }

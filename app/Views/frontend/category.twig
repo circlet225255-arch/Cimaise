@@ -3,6 +3,8 @@
 {% block content %}
 {% set work_stream_slugs = ['concept', 'event', 'wedding'] %}
 {% set is_work_stream = category.slug in work_stream_slugs %}
+{% set category_about_url = about_url|default('/about') %}
+{% set category_about_path = category_about_url starts with '/' ? base_path ~ category_about_url : category_about_url %}
 
 {{ do_action('frontend_category_before', {category: category, albums: albums, base_path: base_path}) }}
 
@@ -29,16 +31,16 @@
     <div class="work-stream__scrim" aria-hidden="true"></div>
 
     <header class="work-stream__header">
-      <a class="work-stream__brand" href="{{ base_path }}/" aria-label="{{ site_title|default('Portfolio')|e }}">Voyage</a>
+      <a class="work-stream__brand" href="{{ base_path }}/" aria-label="{{ about_title|default('Nguyễn Đình Việt Thái')|e }}">{{ about_title|default('Nguyễn Đình Việt Thái')|e }}</a>
       <nav class="work-stream__nav" aria-label="Primary">
-        <a class="is-active" href="{{ base_path }}/category/{{ category.slug }}" data-work-nav="destinations">Destinations</a>
-        <a href="{{ base_path }}/#selected-rolls" data-work-nav="tripTypes">Trip Types</a>
-        <a href="{{ base_path }}/#selected-rolls" data-work-nav="getInspired">Get Inspired</a>
-        <a href="{{ base_path }}/#selected-rolls" data-work-nav="specialOffers">Special Offers</a>
+        <a href="{{ base_path }}/#my-work" data-work-nav="work">Work</a>
+        <a class="{% if category.slug == 'concept' %}is-active{% endif %}" href="{{ base_path }}/category/concept" data-work-nav="concept"{% if category.slug == 'concept' %} aria-current="page"{% endif %}>Concept</a>
+        <a class="{% if category.slug == 'event' %}is-active{% endif %}" href="{{ base_path }}/category/event" data-work-nav="event"{% if category.slug == 'event' %} aria-current="page"{% endif %}>Event</a>
+        <a class="{% if category.slug == 'wedding' %}is-active{% endif %}" href="{{ base_path }}/category/wedding" data-work-nav="wedding"{% if category.slug == 'wedding' %} aria-current="page"{% endif %}>Wedding</a>
+        <a href="{{ category_about_path|e('html_attr') }}" data-work-nav="about">About</a>
       </nav>
       <div class="work-stream__actions">
-        <button type="button" class="work-stream__search" aria-label="Search" data-work-search><span aria-hidden="true"></span></button>
-        <a class="work-stream__cta" href="{{ base_path }}/about#contact">Book now</a>
+        <a class="work-stream__cta" href="{{ (category_about_path ~ '#contact')|e('html_attr') }}">Book me</a>
       </div>
     </header>
 
@@ -202,13 +204,18 @@
   }
   .work-stream__brand {
     flex: 0 0 auto;
+    max-width: 16rem;
+    overflow: hidden;
     color: #fff;
     font-family: Georgia, serif;
     font-size: clamp(1.1rem, 2vw, 1.45rem);
     font-weight: 700;
     letter-spacing: -0.06em;
+    line-height: 1.05;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  .work-stream__nav { display: flex; align-items: stretch; align-self: stretch; gap: clamp(1rem, 3vw, 2.75rem); }
+  .work-stream__nav { display: flex; align-items: stretch; align-self: stretch; gap: clamp(1rem, 3vw, 2.75rem); min-width: 0; }
   .work-stream__nav a,
   .work-stream__search,
   .work-stream__cta {
@@ -317,8 +324,14 @@
 
   @media (max-width: 800px) {
     .work-stream__stage { width: 100%; height: 100svh; min-height: 36rem; }
-    .work-stream__header { min-height: 4.25rem; gap: 1rem; }
-    .work-stream__nav { display: none; }
+    .work-stream__header { min-height: 4.25rem; gap: .8rem; padding-inline: .85rem; }
+    .work-stream__brand { max-width: 34vw; font-size: .88rem; }
+    .work-stream__nav { flex: 1 1 auto; gap: .95rem; overflow-x: auto; scrollbar-width: none; }
+    .work-stream__nav::-webkit-scrollbar { display: none; }
+    .work-stream__nav a { flex: 0 0 auto; font-size: .46rem; letter-spacing: .09em; }
+    .work-stream__nav a::after { bottom: .58rem; }
+    .work-stream__actions { gap: 0; }
+    .work-stream__cta { padding: .48rem .65rem; font-size: .45rem; }
     .work-stream__slide { width: clamp(10rem, 42vw, 14rem); height: clamp(17rem, 58vh, 24rem); }
     .work-stream__slide.is-left-1 { transform: translate(-50%, -50%) translateX(-88%) translateZ(0) rotateY(10deg) scale(0.83); }
     .work-stream__slide.is-right-1 { transform: translate(-50%, -50%) translateX(88%) translateZ(0) rotateY(-10deg) scale(0.83); }

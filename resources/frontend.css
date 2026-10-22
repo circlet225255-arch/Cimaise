@@ -1,5 +1,34 @@
 /* Frontend custom styles - extracted from _layout.twig inline <style> */
 
+/* One booking action across every public route. */
+.site-book-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    padding: .55rem .95rem;
+    border-radius: 999px;
+    background: #f47a25;
+    color: #fff !important;
+    font: 700 .62rem/1.1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    box-shadow: 0 .35rem .9rem rgb(244 122 37 / 24%);
+    transition: background-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.site-book-cta:hover {
+    background: #ff9346 !important;
+    color: #fff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 .45rem 1.1rem rgb(244 122 37 / 32%);
+}
+.site-book-cta--mobile {
+    width: calc(100% - 1.5rem);
+    margin: .55rem .75rem .15rem;
+    padding-block: .75rem;
+}
+
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;

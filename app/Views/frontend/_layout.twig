@@ -266,7 +266,7 @@
     <link href="{{ vite_asset('axel-reference.css') }}" rel="stylesheet">
     {% endif %}
     {% if _selects_theme %}
-      <link href="{{ base_path }}/assets/selects-reference.css?v={{ app_version|default('0')|e('url') }}-dream-beats-v75-blurred-home" rel="stylesheet">
+      <link href="{{ base_path }}/assets/selects-reference.css?v={{ app_version|default('0')|e('url') }}-nav-standardized-v76" rel="stylesheet">
     {% endif %}
 </head>
 <body class="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] font-sans antialiased{% if admin_logged_in|default(false) %} has-admin-bar{% endif %}{% if _selects_theme %} selects-shell{% endif %}{% if home_settings.template|default('') == 'selects' %} coppola-home-shell{% endif %}{% if home_settings.template|default('') == 'axel' %} axel-home-shell{% endif %}{% if galleries_template|default('') == 'axel' %} axel-works-shell{% endif %}{% if about_theme|default('') == 'axel' %} axel-about-shell{% endif %}{% if album_page_template|default('') == 'axel' %} axel-album-shell{% endif %}{% if playground_theme|default('') == 'axel' %} axel-playground-shell{% endif %}">
@@ -281,6 +281,14 @@
     {# Centralized category filtering logic - used in desktop mega-menu, mobile menu, and JS data #}
     {# A category is visible if it has albums OR has children with albums #}
     {% set filtered_parent_categories = parent_categories|default([])|filter(c => (c.name|default('')|trim != '') and (c.albums_count > 0 or c.children|filter(ch => ch.name|default('')|trim != '' and ch.albums_count > 0)|length > 0)) %}
+    {# Canonical portfolio navigation shared by the homepage and the three work streams. #}
+    {% set nav_about_url = about_url|default('/about') %}
+    {% set nav_about_path = nav_about_url starts with '/' ? base_path ~ nav_about_url : nav_about_url %}
+    {% set nav_book_path = nav_about_path ~ '#contact' %}
+    {% set nav_work_path = base_path ~ '/#my-work' %}
+    {% set nav_concept_path = base_path ~ '/category/concept' %}
+    {% set nav_event_path = base_path ~ '/category/event' %}
+    {% set nav_wedding_path = base_path ~ '/category/wedding' %}
 
     <!-- Header -->
     <header class="border-b border-gray-200 sticky top-0 bg-white/95 backdrop-blur-md z-50" id="main-header">
@@ -303,10 +311,11 @@
                     <!-- Desktop Navigation -->
                     <nav class="hidden lg:flex items-center gap-6" id="desktop-nav">
                         {% if _selects_theme %}
-                        {% set selects_about_path = about_url starts with '/' ? about_url : '/' ~ about_url %}
-                        <a href="{{ (base_path ~ '/#selected-rolls')|e('html_attr') }}" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">Work</a>
-                        <a href="{{ selects_about_path|e('html_attr') }}" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">About</a>
-                        <a href="{{ (selects_about_path ~ '#contact')|e('html_attr') }}" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">Contact</a>
+                        <a href="{{ nav_work_path|e('html_attr') }}" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">Work</a>
+                        <a href="{{ nav_concept_path|e('html_attr') }}" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">Concept</a>
+                        <a href="{{ nav_event_path|e('html_attr') }}" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">Event</a>
+                        <a href="{{ nav_wedding_path|e('html_attr') }}" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">Wedding</a>
+                        <a href="{{ nav_about_path|e('html_attr') }}" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">About</a>
                         {% else %}
                         <a href="{{ base_path }}/" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">{{ trans('nav.home') }}</a>
                         <a href="{{ base_path }}/galleries" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">{{ trans('nav.galleries') }}</a>
@@ -405,6 +414,7 @@
 
                 <!-- Right Side Actions -->
                 <div class="flex items-center gap-4">
+                    <a href="{{ nav_book_path|e('html_attr') }}" class="site-book-cta">Book me</a>
                     {% if is_admin %}
                     <!-- Admin Dashboard Button -->
                     <a href="{{ base_path }}/admin" class="flex items-center gap-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-700 transition-colors duration-200 py-2 px-4 rounded-md">
@@ -483,14 +493,17 @@
                 <!-- Main Navigation -->
                 <div class="px-2 space-y-1">
                     {% if _selects_theme %}
-                    {% set selects_mobile_about_path = about_url starts with '/' ? about_url : '/' ~ about_url %}
-                    <a href="{{ base_path }}/#selected-rolls" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">Work</a>
-                    <a href="{{ selects_mobile_about_path|e('html_attr') }}" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">About</a>
-                    <a href="{{ (selects_mobile_about_path ~ '#contact')|e('html_attr') }}" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">Contact</a>
+                    <a href="{{ nav_work_path|e('html_attr') }}" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">Work</a>
+                    <a href="{{ nav_concept_path|e('html_attr') }}" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">Concept</a>
+                    <a href="{{ nav_event_path|e('html_attr') }}" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">Event</a>
+                    <a href="{{ nav_wedding_path|e('html_attr') }}" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">Wedding</a>
+                    <a href="{{ nav_about_path|e('html_attr') }}" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">About</a>
+                    <a href="{{ nav_book_path|e('html_attr') }}" class="site-book-cta site-book-cta--mobile">Book me</a>
                     {% else %}
                     <a href="{{ base_path }}/" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">{{ trans('nav.home') }}</a>
                     <a href="{{ base_path }}/galleries" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">{{ trans('nav.galleries') }}</a>
                     <a href="{% if about_url starts with '/' %}{{ base_path }}{{ about_url }}{% else %}{{ about_url }}{% endif %}" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">{{ trans('nav.about') }}</a>
+                    <a href="{{ nav_book_path|e('html_attr') }}" class="site-book-cta site-book-cta--mobile">Book me</a>
 
                     {{ hook('frontend_nav_after_about', {'base_path': base_path, 'location': 'mobile', 'csp_nonce': csp_nonce()}) }}
                     {% endif %}
