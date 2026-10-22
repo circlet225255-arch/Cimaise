@@ -2680,15 +2680,6 @@ body.selects-shell.coppola-home-shell #main-content > .dream-beats-home {
   margin-bottom: 1.25rem;
   background: rgb(246 211 164 / 76%);
 }
-.dream-beats-home .dream-mood-kicker {
-  display: block;
-  margin-bottom: .8rem;
-  color: rgb(246 211 164 / 88%);
-  font-family: var(--dream-mono);
-  font-size: clamp(.56rem, .82vw, .72rem);
-  letter-spacing: .22em;
-  line-height: 1.25;
-}
 .dream-beats-home .dream-mood-copy h2 {
   position: relative;
   top: auto;
@@ -2708,22 +2699,6 @@ body.selects-shell.coppola-home-shell #main-content > .dream-beats-home {
   font-style: normal;
   font-size: .68em;
   letter-spacing: -.04em;
-}
-.dream-beats-home .dream-mood-copy p {
-  max-width: 18rem;
-  margin: 1.2rem 0 0;
-  color: rgb(255 248 234 / 78%);
-  font-family: var(--dream-sans);
-  font-size: clamp(.82rem, 1.2vw, 1rem);
-  line-height: 1.35;
-}
-.dream-beats-home .dream-mood-copy .dream-folio {
-  position: relative;
-  display: inline-block;
-  margin-top: 2rem;
-  color: rgb(255 248 234 / 62%);
-  font-size: .6rem;
-  letter-spacing: .18em;
 }
 .dream-beats-home .dream-mood-palette {
   position: absolute;
@@ -2789,13 +2764,6 @@ body.selects-shell.coppola-home-shell #main-content > .dream-beats-home {
   }
   .dream-beats-home .dream-mood-copy h2 {
     font-size: clamp(3.35rem, 15vw, 5.3rem);
-  }
-  .dream-beats-home .dream-mood-copy p {
-    max-width: 13rem;
-    margin-top: .9rem;
-  }
-  .dream-beats-home .dream-mood-copy .dream-folio {
-    margin-top: 1rem;
   }
   .dream-beats-home .dream-mood-palette {
     bottom: 6%;
