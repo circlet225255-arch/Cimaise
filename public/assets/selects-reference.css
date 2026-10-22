@@ -909,18 +909,27 @@ body.selects-shell.coppola-home-shell #main-content > * {
 /* Dream Beats reference treatment: warm canvas, sharp photo panels, and a quiet
    editorial rhythm. The current profile, albums, and film-roll data stay intact. */
 body.selects-shell.coppola-home-shell {
-  --dream-canvas: #43381A;
-  --dream-walnut: #352C16;
+  --dream-canvas: #101719;
+  --dream-walnut: #101719;
   --dream-amber: #DEA733;
   --dream-cream: #F4C090;
   --dream-white: #F4C090;
-  --dream-black: #100B05;
+  --dream-black: #05090A;
   --color-bg-primary: var(--dream-canvas);
   --color-text-primary: var(--dream-white);
   min-height: 100%;
   background: var(--dream-canvas) !important;
   color: var(--dream-white) !important;
 }
+body.selects-shell.coppola-home-shell #main-header {
+  background: rgb(16 23 25 / 96%) !important;
+  border-color: rgb(255 255 255 / 16%);
+  color: #fff;
+}
+body.selects-shell.coppola-home-shell #main-header a,
+body.selects-shell.coppola-home-shell #main-header button { color: #fff; }
+body.selects-shell.coppola-home-shell #main-header a:hover,
+body.selects-shell.coppola-home-shell #main-header button:hover { color: #f47a25; }
 body.selects-shell.coppola-home-shell > footer { display: none !important; }
 body.selects-shell.coppola-home-shell #main-content,
 body.selects-shell.coppola-home-shell #main-content > * {

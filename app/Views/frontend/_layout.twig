@@ -266,7 +266,7 @@
     <link href="{{ vite_asset('axel-reference.css') }}" rel="stylesheet">
     {% endif %}
     {% if _selects_theme %}
-      <link href="{{ base_path }}/assets/selects-reference.css?v={{ app_version|default('0')|e('url') }}-dream-beats-v72-header-restored" rel="stylesheet">
+      <link href="{{ base_path }}/assets/selects-reference.css?v={{ app_version|default('0')|e('url') }}-dream-beats-v74-dark-header" rel="stylesheet">
     {% endif %}
 </head>
 <body class="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] font-sans antialiased{% if admin_logged_in|default(false) %} has-admin-bar{% endif %}{% if _selects_theme %} selects-shell{% endif %}{% if home_settings.template|default('') == 'selects' %} coppola-home-shell{% endif %}{% if home_settings.template|default('') == 'axel' %} axel-home-shell{% endif %}{% if galleries_template|default('') == 'axel' %} axel-works-shell{% endif %}{% if about_theme|default('') == 'axel' %} axel-about-shell{% endif %}{% if album_page_template|default('') == 'axel' %} axel-album-shell{% endif %}{% if playground_theme|default('') == 'axel' %} axel-playground-shell{% endif %}">
