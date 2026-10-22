@@ -473,7 +473,6 @@ body.selects-shell.coppola-home-shell {
   background: #030403 !important;
   color: #f8f9f6 !important;
 }
-body.selects-shell.coppola-home-shell #main-header,
 body.selects-shell.coppola-home-shell > footer { display: none !important; }
 body.selects-shell.coppola-home-shell #main-content,
 body.selects-shell.coppola-home-shell #main-content > * {
@@ -922,7 +921,6 @@ body.selects-shell.coppola-home-shell {
   background: var(--dream-canvas) !important;
   color: var(--dream-white) !important;
 }
-body.selects-shell.coppola-home-shell #main-header,
 body.selects-shell.coppola-home-shell > footer { display: none !important; }
 body.selects-shell.coppola-home-shell #main-content,
 body.selects-shell.coppola-home-shell #main-content > * {
