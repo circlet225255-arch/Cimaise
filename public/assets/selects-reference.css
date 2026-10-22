@@ -1845,12 +1845,15 @@ body.selects-shell.coppola-home-shell #main-content > .dream-beats-home {
   position: relative;
   isolation: isolate;
   display: flex;
-  min-height: 0;
+  width: min(100%, 1280px);
+  height: clamp(22rem, 48svh, 32rem);
+  min-height: clamp(22rem, 48svh, 32rem);
   flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  aspect-ratio: 16 / 9;
+  margin-inline: auto;
+  aspect-ratio: auto;
   background: var(--dream-walnut);
   color: var(--dream-white);
   text-align: center;
