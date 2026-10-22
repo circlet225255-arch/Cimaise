@@ -43,6 +43,7 @@ body.selects-shell #main-header button { color: var(--selects-ink); }
 body.selects-shell #main-header a:hover,
 body.selects-shell #main-header button:hover { color: var(--selects-red); }
 body.selects-shell #desktop-nav { margin-left: auto; gap: clamp(1rem, 2.3vw, 2.25rem); }
+body.selects-shell #main-header > div > div { column-gap: clamp(1rem, 2vw, 2.25rem); }
 body.selects-shell #desktop-nav a {
   padding-top: .5rem;
   padding-bottom: .5rem;
@@ -67,18 +68,6 @@ body.selects-shell #mobile-menu,
 body.selects-shell #header-search-panel { background: var(--selects-paper); border-color: var(--selects-line); }
 body.selects-shell #mobile-menu a { color: var(--selects-ink); }
 body.selects-shell #mobile-menu a:hover { background: var(--selects-paper-dark); }
-.selects-local-clock {
-  display: inline-flex;
-  align-items: baseline;
-  gap: .55rem;
-  margin-left: clamp(1rem, 2vw, 2rem);
-  color: var(--selects-muted);
-  font: 500 .62rem/1.2 var(--selects-mono);
-  letter-spacing: .08em;
-  white-space: nowrap;
-  text-transform: uppercase;
-}
-.selects-local-clock time { color: var(--selects-ink); font-variant-numeric: tabular-nums; }
 body.selects-shell > footer {
   margin-top: 0;
   border-color: var(--selects-line);
@@ -420,7 +409,6 @@ body.selects-shell #main-content .cs-kicker { color: var(--selects-muted); }
   body.selects-shell #main-header > div > div { min-height: 64px; }
   body.selects-shell #main-header .text-xl { font-size: .92rem; }
   body.selects-shell #desktop-nav { gap: .8rem; }
-  .selects-local-clock { display: none; }
   .selects-sheet-heading,
   .selects-sheet-bottom,
   .selects-section-index,
@@ -445,9 +433,6 @@ body.selects-shell #main-content .cs-kicker { color: var(--selects-muted); }
   .selects-project:nth-child(even) { margin-top: 0; }
   .selects-project-image { aspect-ratio: 1.13; }
   .selects-contact-print { width: min(78vw, 420px); }
-}
-@media (min-width: 768px) and (max-width: 1023px) {
-  .selects-local-clock { display: none; }
 }
 @media (max-width: 420px) {
   body.selects-shell #desktop-nav { gap: .55rem; }

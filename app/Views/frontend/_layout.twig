@@ -266,7 +266,7 @@
     <link href="{{ vite_asset('axel-reference.css') }}" rel="stylesheet">
     {% endif %}
     {% if _selects_theme %}
-      <link href="{{ base_path }}/assets/selects-reference.css?v={{ app_version|default('0')|e('url') }}-nav-standardized-v78" rel="stylesheet">
+      <link href="{{ base_path }}/assets/selects-reference.css?v={{ app_version|default('0')|e('url') }}-nav-standardized-v80" rel="stylesheet">
     {% endif %}
 </head>
 <body class="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] font-sans antialiased{% if admin_logged_in|default(false) %} has-admin-bar{% endif %}{% if _selects_theme %} selects-shell{% endif %}{% if home_settings.template|default('') == 'selects' %} coppola-home-shell{% endif %}{% if home_settings.template|default('') == 'axel' %} axel-home-shell{% endif %}{% if galleries_template|default('') == 'axel' %} axel-works-shell{% endif %}{% if about_theme|default('') == 'axel' %} axel-about-shell{% endif %}{% if album_page_template|default('') == 'axel' %} axel-album-shell{% endif %}{% if playground_theme|default('') == 'axel' %} axel-playground-shell{% endif %}">
@@ -425,9 +425,6 @@
 
                     <!-- Social Profiles + Search (grouped with tight spacing) -->
                     <div class="flex items-center">
-                      {% if _selects_theme %}
-                      <span class="selects-local-clock"><span>Giờ địa phương</span><time id="selects-local-time" aria-label="Giờ địa phương">--:--</time></span>
-                      {% endif %}
                       {% if social_profiles is defined and social_profiles|length > 0 %}
                       {% for profile in social_profiles %}
                         <a href="{{ profile.url }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-8 h-8 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200" title="{{ profile.name }}" aria-label="{{ profile.name }}">
@@ -635,23 +632,6 @@
             </div>
         </div>
     </header>
-
-    {% if _selects_theme %}
-    <script nonce="{{ csp_nonce() }}">
-    (function () {
-      var clock = document.getElementById('selects-local-time');
-      if (!clock) return;
-      var formatter = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
-      function updateClock() {
-        var now = new Date();
-        clock.textContent = formatter.format(now);
-        clock.dateTime = now.toISOString();
-      }
-      updateClock();
-      window.setInterval(updateClock, 60000);
-    })();
-    </script>
-    {% endif %}
 
     <!-- Dark mode toggle wiring: flips the `dark` class on <html> and persists the
          visitor's choice to localStorage (overrides the admin site default). The
