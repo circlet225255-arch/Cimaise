@@ -51,7 +51,21 @@ class ViteTwigExtension extends AbstractExtension
     public function getAssetPath(string $entry): string
     {
         if ($this->devServerUrl !== '') {
-            return $this->devServerUrl . '/resources/' . $this->normalizeEntry($entry);
+            $normalizedEntry = $this->normalizeEntry($entry);
+
+            // A CSS entry requested directly from Vite is normally returned as
+            // a JavaScript HMR module.  These Twig layouts intentionally use
+            // regular stylesheet links (including media attributes), so ask
+            // Vite for its compiled CSS response instead of a JS module.
+            $directQuery = str_ends_with(strtolower($normalizedEntry), '.css')
+                ? '?direct'
+                : '';
+
+            // Keep the URL relative to the page origin.  The dev runner binds
+            // Vite on 127.0.0.1, but browsers commonly open the site through
+            // localhost; an absolute 127.0.0.1 URL would then be a different
+            // origin and be rejected by the frontend CSP.
+            return $this->basePath . '/resources/' . $normalizedEntry . $directQuery;
         }
 
         $manifest = $this->loadManifest();
@@ -116,7 +130,7 @@ class ViteTwigExtension extends AbstractExtension
             return '';
         }
 
-        $src = htmlspecialchars($this->devServerUrl . '/@vite/client', ENT_QUOTES, 'UTF-8');
+        $src = htmlspecialchars($this->basePath . '/@vite/client', ENT_QUOTES, 'UTF-8');
         return '<script type="module" src="' . $src . '"></script>';
     }
 
