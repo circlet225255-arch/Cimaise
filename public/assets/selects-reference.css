@@ -1896,7 +1896,7 @@ body.selects-shell.coppola-home-shell #main-content > .dream-beats-home {
 .dream-beats-home .dream-beats-my-work {
   min-width: 0;
   padding: clamp(1.25rem, 3.4vw, 3.25rem);
-  background: var(--dream-walnut);
+  background: transparent;
   color: var(--dream-white);
 }
 .dream-beats-home .dream-work-heading {
