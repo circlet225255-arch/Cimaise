@@ -1,0 +1,215 @@
+{# Shared route atmosphere for every standard frontend route. Specialized pages
+   (home, work streams, albums, and Axel layouts) opt out in the runtime below. #}
+<style nonce="{{ csp_nonce() }}">
+.route-photo-backdrop {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #101719;
+  opacity: 0;
+  transition: opacity .45s ease;
+}
+.route-photo-backdrop.is-visible { opacity: 1; }
+.route-photo-backdrop.is-suppressed { display: none; }
+.route-photo-backdrop__image {
+  position: absolute;
+  inset: -1.5rem;
+  width: calc(100% + 3rem);
+  height: calc(100% + 3rem);
+  max-width: none;
+  object-fit: cover;
+  opacity: 0;
+  filter: blur(1.2rem) saturate(.75) brightness(.65);
+  transform: scale(1.1);
+  transition: opacity .8s ease;
+  will-change: opacity;
+}
+.route-photo-backdrop__image.is-active { opacity: 1; }
+.route-photo-backdrop__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(6, 11, 13, .8) 0%, rgba(6, 11, 13, .16) 38%, rgba(6, 11, 13, .66) 100%);
+}
+body.route-photo-backdrop-active {
+  background: #101719 !important;
+}
+body.route-photo-backdrop-active #main-header {
+  background: rgb(16 23 25 / 94%) !important;
+  border-color: rgb(255 255 255 / 16%) !important;
+  color: #fff !important;
+}
+body.route-photo-backdrop-active #main-header a,
+body.route-photo-backdrop-active #main-header button { color: #fff !important; }
+body.route-photo-backdrop-active #main-content {
+  position: relative;
+  isolation: isolate;
+  z-index: 1;
+  background: transparent !important;
+}
+body.route-photo-backdrop-active #main-content > * {
+  position: relative;
+  z-index: 1;
+}
+body.route-photo-backdrop-active #main-content > .min-h-screen.bg-gradient-to-br {
+  background: transparent !important;
+}
+body.route-photo-backdrop-active #main-content .text-neutral-600,
+body.route-photo-backdrop-active #main-content .text-neutral-700,
+body.route-photo-backdrop-active #main-content .rich-text-content {
+  color: rgb(244 192 144 / 82%) !important;
+}
+body.route-photo-backdrop-active #main-content .border-neutral-200,
+body.route-photo-backdrop-active #main-content .border-neutral-300 {
+  border-color: rgb(255 255 255 / 20%) !important;
+}
+body.route-photo-backdrop-active #main-content #contact {
+  background: rgb(6 11 13 / 32%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .route-photo-backdrop,
+  .route-photo-backdrop__image { transition-duration: .01ms !important; }
+}
+</style>
+
+<div class="route-photo-backdrop" data-route-photo-backdrop aria-hidden="true">
+  <img class="route-photo-backdrop__image" data-route-backdrop-image alt="">
+  <img class="route-photo-backdrop__image" data-route-backdrop-image alt="">
+  <div class="route-photo-backdrop__scrim"></div>
+</div>
+
+<script nonce="{{ csp_nonce() }}">
+(function initRoutePhotoBackdrop() {
+  const shell = document.querySelector('[data-route-photo-backdrop]');
+  const main = document.querySelector('#main-content');
+  if (!shell || !main) return;
+
+  const specialized = document.querySelector(
+    '.dream-beats-home__background, .work-stream__background, .album-photo-backdrop, ' +
+    '.axel-reference-shell, .axel-reference, .axel-home, .axel-about, .axel-album-shell, ' +
+    '.axel-playground, .axel-works-shell'
+  ) || /(?:^|\s)axel-[^\s]*/.test(document.body.className);
+
+  if (specialized) {
+    shell.classList.add('is-suppressed');
+    return;
+  }
+
+  const layers = Array.from(shell.querySelectorAll('[data-route-backdrop-image]'));
+  if (layers.length < 2) return;
+
+  document.body.classList.add('route-photo-backdrop-active');
+  shell.classList.add('is-visible');
+
+  const fallbackSrc = {{ (base_path ~ '/assets/moodboard-n.jpg')|json_encode|raw }};
+  let activeLayer = 0;
+  let currentSrc = '';
+  let pendingSrc = '';
+  let frame = 0;
+
+  function resolveSrc(image) {
+    if (!image) return '';
+    const candidates = [
+      image.currentSrc,
+      image.getAttribute('src'),
+      image.getAttribute('data-src'),
+      image.getAttribute('data-lazy-src')
+    ];
+    const source = candidates.find((value) => {
+      if (!value || value === fallbackSrc) return false;
+      return !/^(data|blob):/i.test(value) && !/(?:placeholder|loading|transparent)/i.test(value);
+    });
+    return source || '';
+  }
+
+  function contentImages() {
+    return Array.from(main.querySelectorAll('img:not([data-route-backdrop-image]):not([data-album-backdrop-image])'))
+      .filter((image) => {
+        const rect = image.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0 && resolveSrc(image);
+      });
+  }
+
+  function normalized(src) {
+    try { return new URL(src, document.baseURI).href; }
+    catch (error) { return src; }
+  }
+
+  function setLayer(layer, src) {
+    layer.src = src;
+    layer.classList.add('is-active');
+  }
+
+  function swapBackdrop(src) {
+    if (!src) return;
+    const nextSrc = normalized(src);
+    if (nextSrc === currentSrc || nextSrc === pendingSrc) return;
+
+    pendingSrc = nextSrc;
+    const previousLayerIndex = activeLayer;
+    const nextLayerIndex = activeLayer === 0 ? 1 : 0;
+    const nextLayer = layers[nextLayerIndex];
+    const preload = new Image();
+    preload.onload = function () {
+      if (nextSrc !== pendingSrc) return;
+      setLayer(nextLayer, nextSrc);
+      layers[previousLayerIndex].classList.remove('is-active');
+      activeLayer = nextLayerIndex;
+      currentSrc = nextSrc;
+      pendingSrc = '';
+    };
+    preload.onerror = function () {
+      if (nextSrc === pendingSrc) pendingSrc = '';
+    };
+    preload.src = nextSrc;
+  }
+
+  setLayer(layers[activeLayer], normalized(fallbackSrc));
+  currentSrc = normalized(fallbackSrc);
+
+  function updateBackdrop() {
+    frame = 0;
+    const images = contentImages();
+    if (!images.length) {
+      swapBackdrop(fallbackSrc);
+      return;
+    }
+
+    const viewportCenter = window.innerHeight / 2;
+    let bestImage = images[0];
+    let bestScore = -Infinity;
+
+    images.forEach((image) => {
+      const rect = image.getBoundingClientRect();
+      const visibleTop = Math.max(rect.top, 0);
+      const visibleBottom = Math.min(rect.bottom, window.innerHeight);
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+      const visibility = visibleHeight / Math.max(rect.height, 1);
+      const centerDistance = Math.abs((rect.top + rect.bottom) / 2 - viewportCenter) / Math.max(window.innerHeight, 1);
+      const score = visibility - centerDistance * .28;
+      if (score > bestScore) {
+        bestScore = score;
+        bestImage = image;
+      }
+    });
+
+    swapBackdrop(resolveSrc(bestImage) || fallbackSrc);
+  }
+
+  function scheduleBackdropUpdate() {
+    if (!frame) frame = window.requestAnimationFrame(updateBackdrop);
+  }
+
+  window.addEventListener('scroll', scheduleBackdropUpdate, { passive: true });
+  window.addEventListener('resize', scheduleBackdropUpdate, { passive: true });
+  main.addEventListener('load', scheduleBackdropUpdate, true);
+  new MutationObserver(scheduleBackdropUpdate).observe(main, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['src', 'srcset', 'data-src', 'data-lazy-src']
+  });
+  scheduleBackdropUpdate();
+})();
+</script>
