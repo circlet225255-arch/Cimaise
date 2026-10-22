@@ -1,0 +1,10 @@
+{% macro album_title(slug, title) %}
+  {% set album_labels = {
+    'chan-dung-anh-nhin-cu-chi': 'Chân dung, ánh nhìn, cử chỉ',
+    'nghi-le-ngay-vui': 'Nghi lễ ngày vui',
+    'chuyen-dong-phia-sau-khung-hinh': 'Chuyển động phía sau khung hình',
+    'khong-gian-anh-den-va-huong-vi': 'Không gian, ánh đèn và hương vị',
+    'doi-thuong-nhung-khoang-lang': 'Đời thường, những khoảng lặng'
+  } %}
+  {{ title|default(album_labels[slug]|default(slug|default('Bộ ảnh')|replace({'-': ' '})|title))|e }}
+{% endmacro %}

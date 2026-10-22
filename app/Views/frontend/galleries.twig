@@ -3,6 +3,7 @@
 {% import "frontend/_lqip_macros.twig" as lqip %}
 
 {% block content %}
+{% set visible_categories = filter_options.categories|default([])|filter(category => category.name|default('')|trim != '') %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
   {% include 'frontend/_breadcrumbs.twig' %}
 </div>
@@ -24,7 +25,7 @@
   <!-- Advanced Filters Panel -->
   {# Check if there are any actual filter options to show #}
   {% set has_filter_options =
-    (filter_settings.show_categories and filter_options.categories|length > 0) or
+    (filter_settings.show_categories and visible_categories|length > 0) or
     (filter_settings.show_tags and filter_options.tags|length > 0) or
     (filter_settings.show_cameras and filter_options.cameras|length > 0) or
     (filter_settings.show_lenses and filter_options.lenses|length > 0) or
@@ -69,7 +70,7 @@
       <div id="filters-grid" class="flex flex-wrap gap-3 opacity-0 max-h-0 overflow-hidden">
         
         <!-- Categories Filter -->
-        {% if filter_settings.show_categories and filter_options.categories|length > 0 %}
+        {% if filter_settings.show_categories and visible_categories|length > 0 %}
         <div class="filter-group">
           <label class="block text-xs font-semibold text-gray-900 mb-2">
             <i class="fas fa-folder-open mr-1 text-gray-600"></i>
@@ -85,7 +86,7 @@
             <i class="fas fa-search absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
           </div>
           <div id="filter-categories" class="flex flex-wrap gap-2 max-h-40 overflow-auto pr-1">
-            {% for category in filter_options.categories %}
+            {% for category in visible_categories %}
             {% set is_active = category.id in active_filters.category|default([]) %}
             <button type="button"
                     class="filter-chip{{ is_active ? ' is-active' : '' }}"

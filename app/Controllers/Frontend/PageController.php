@@ -511,7 +511,7 @@ class PageController extends BaseController
 
         // Allow template override via query parameter (for demo/preview)
         $queryParams = $request->getQueryParams();
-        $validTemplates = ['classic', 'modern', 'parallax', 'masonry', 'snap', 'gallery', 'editorial', 'justified', 'slideshow', 'split', 'bento', 'filmstrip'];
+        $validTemplates = ['classic', 'modern', 'parallax', 'masonry', 'snap', 'gallery', 'editorial', 'justified', 'slideshow', 'split', 'bento', 'filmstrip', 'axel', 'selects'];
         $templateOverride = isset($queryParams['template']) && in_array($queryParams['template'], $validTemplates, true)
             ? $queryParams['template']
             : null;
@@ -522,6 +522,22 @@ class PageController extends BaseController
         $canUseCache = !$isAdmin && !$nsfwConsent && $templateOverride === null
             && empty($_SESSION['album_access']);
 
+        // Keep the photographer profile live on the cached homepage. The Axel
+        // and Selects homepages use these fields in their About and Contact
+        // chapters, while the main photo and album data remain covered by cache.
+        $svc = new \App\Services\SettingsService($this->db);
+        $profileData = [
+            'about_title' => (string) ($svc->get('about.title', 'About') ?? 'About'),
+            'about_subtitle' => (string) ($svc->get('about.subtitle', '') ?? ''),
+            'about_text' => (string) ($svc->get('about.text', '') ?? ''),
+            'about_photo_url' => (string) ($svc->get('about.photo_url', '') ?? ''),
+            'about_footer_text' => (string) ($svc->get('about.footer_text', '') ?? ''),
+            'about_socials' => (array) ($svc->get('about.socials', []) ?? []),
+            'contact_email' => (string) ($svc->get('about.contact_email', '') ?? ''),
+            'contact_phone' => (string) ($svc->get('about.phone', '') ?? ''),
+            'contact_intro' => (string) ($svc->get('about.contact_intro', '') ?? ''),
+        ];
+
         // Try cache first for public view
         if ($canUseCache) {
             $cacheService = $this->getPageCacheService();
@@ -529,10 +545,9 @@ class PageController extends BaseController
 
             if ($cached !== null && isset($cached['template_file'], $cached['data']) && is_array($cached['data'])) {
                 // Fresh cache hit - render with cached data + session-specific vars
-                $svc = new \App\Services\SettingsService($this->db);
                 $siteDescription = (string) ($svc->get('site.description', '') ?? '');
                 $seo = $this->buildSeo($request, 'Home', $siteDescription, null, $this->homePageTitle($svc));
-                return $this->view->render($response, $cached['template_file'], array_merge($cached['data'], [
+                return $this->view->render($response, $cached['template_file'], array_merge($cached['data'], $profileData, [
                     'page_title' => $seo['page_title'],
                     'meta_description' => $seo['meta_description'],
                     'meta_image' => $seo['meta_image'],
@@ -551,7 +566,6 @@ class PageController extends BaseController
             $staleCached = $cacheService->get('home', allowStale: true);
             if ($staleCached !== null && isset($staleCached['template_file'], $staleCached['data']) && is_array($staleCached['data'])) {
                 // Serve stale data immediately for fast response
-                $svc = new \App\Services\SettingsService($this->db);
                 $siteDescription = (string) ($svc->get('site.description', '') ?? '');
                 $seo = $this->buildSeo($request, 'Home', $siteDescription, null, $this->homePageTitle($svc));
 
@@ -561,7 +575,7 @@ class PageController extends BaseController
                 // A stale body must not receive the validator of a concurrent
                 // rebuild or remain fresh in the browser for another hour.
                 $response = $response->withHeader('Cache-Control', 'no-store');
-                return $this->view->render($response, $staleCached['template_file'], array_merge($staleCached['data'], [
+                return $this->view->render($response, $staleCached['template_file'], array_merge($staleCached['data'], $profileData, [
                     'page_title' => $seo['page_title'],
                     'meta_description' => $seo['meta_description'],
                     'meta_image' => $seo['meta_image'],
@@ -578,8 +592,6 @@ class PageController extends BaseController
         }
 
         // Fetch home page settings
-        $svc = new \App\Services\SettingsService($this->db);
-
         $homeTemplate = $templateOverride ?? (string) ($svc->get('home.template', 'classic') ?? 'classic');
         $homeSettings = [
             'template' => $homeTemplate,
@@ -681,7 +693,7 @@ class PageController extends BaseController
         // repeats photos). The new editorial/justified/slideshow/split/bento/filmstrip
         // templates are grid layouts like masonry, so they share this unique-image path
         // to avoid duplicate photos. Classic/modern/parallax/snap/gallery keep diversity.
-        $gridTemplates = ['masonry', 'editorial', 'justified', 'slideshow', 'split', 'bento', 'filmstrip'];
+        $gridTemplates = ['masonry', 'editorial', 'justified', 'slideshow', 'split', 'bento', 'filmstrip', 'axel', 'selects'];
         if (in_array($homeTemplate, $gridTemplates, true)) {
             // Masonry: load ALL unique images at once (no progressive loading, no looping/duplicates)
             // CSS columns reflow ALL items when appending, causing jarring visual shifts.
@@ -769,6 +781,8 @@ class PageController extends BaseController
             'split' => 'frontend/home_split.twig',
             'bento' => 'frontend/home_bento.twig',
             'filmstrip' => 'frontend/home_filmstrip.twig',
+            'axel' => 'frontend/home_axel.twig',
+            'selects' => 'frontend/home_selects.twig',
         ];
         $templateFile = $templateMap[$homeTemplate] ?? 'frontend/home.twig';
 
@@ -801,7 +815,7 @@ class PageController extends BaseController
             ]);
         }
 
-        return $this->view->render($response, $templateFile, array_merge($cacheableData, [
+        return $this->view->render($response, $templateFile, array_merge($cacheableData, $profileData, [
             'page_title' => $seo['page_title'],
             'meta_description' => $seo['meta_description'],
             'meta_image' => $seo['meta_image'],
@@ -1570,7 +1584,7 @@ class PageController extends BaseController
         if ($pageTemplate === '') {
             $pageTemplate = (string) ($settingsServiceForPage->get('gallery.page_template', 'classic') ?? 'classic');
         }
-        $allowedPageTemplates = ['classic', 'hero', 'magazine'];
+        $allowedPageTemplates = ['classic', 'hero', 'magazine', 'axel'];
         try {
             $customTemplates = Hooks::applyFilter('available_album_page_templates', []);
             foreach ($customTemplates as $customTpl) {
@@ -1729,6 +1743,8 @@ class PageController extends BaseController
         // Cacheable data (excludes session-specific vars: csrf, is_admin, nsfw_consent)
         $cacheableData = [
             'album' => $galleryMeta,
+            'album_page_template' => $pageTemplate,
+            'galleries_slug' => (string) ($settingsServiceForPage->get('galleries.slug', 'galleries') ?? 'galleries'),
             'images' => $images,
             'template_name' => $template['name'] ?? '',
             'template_slug' => $template['slug'] ?? '',
@@ -2621,6 +2637,9 @@ class PageController extends BaseController
         $aboutSubtitle = (string) ($settings->get('about.subtitle', '') ?? '');
         $contactTitle = (string) ($settings->get('about.contact_title', 'Contatti') ?? 'Contatti');
         $contactIntro = (string) ($settings->get('about.contact_intro', '') ?? '');
+        $contactEmail = (string) ($settings->get('about.contact_email', '') ?? '');
+        $contactPhone = (string) ($settings->get('about.phone', '') ?? '');
+        $aboutTheme = (string) ($settings->get('home.template', 'classic') ?? 'classic');
 
         // reCAPTCHA settings
         $recaptchaEnabled = (bool) ($settings->get('recaptcha.enabled', false) ?? false);
@@ -2634,7 +2653,7 @@ class PageController extends BaseController
         // buildSeo truncates on a word boundary, so pass the full text here.
         $shortAbout = trim(strip_tags($aboutText));
         $seo = $this->buildSeo($request, $aboutTitle, $shortAbout, $aboutPhoto ?: null);
-        return $this->view->render($response, 'frontend/about.twig', [
+        return $this->view->render($response, $aboutTheme === 'axel' ? 'frontend/about_axel.twig' : 'frontend/about.twig', [
             'categories' => $navCategories,
             'parent_categories' => $this->getNavigationService()->getParentCategoriesForNavigation(),
             'page_title' => $seo['page_title'],
@@ -2650,8 +2669,12 @@ class PageController extends BaseController
             'about_socials' => $aboutSocials,
             'about_title' => $aboutTitle,
             'about_subtitle' => $aboutSubtitle,
+            'about_theme' => $aboutTheme,
+            'galleries_slug' => (string) ($settings->get('galleries.slug', 'galleries') ?? 'galleries'),
             'contact_title' => $contactTitle,
             'contact_intro' => $contactIntro,
+            'contact_email' => $contactEmail,
+            'contact_phone' => $contactPhone,
             'contact_sent' => $contactSent,
             'contact_error' => $contactError,
             'recaptcha_enabled' => $recaptchaEnabled,

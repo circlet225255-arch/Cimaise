@@ -344,8 +344,9 @@ $twigCache = \App\Support\TwigCache::directory(dirname(__DIR__)) ?? false;
 $isProduction = !filter_var($_ENV['APP_DEBUG'] ?? false, FILTER_VALIDATE_BOOLEAN);
 $twigOptions = [
     'cache' => $twigCache,
-    // Disable auto_reload in production (huge performance gain - no file stat checks)
-    'auto_reload' => !$isProduction,
+    // Keep production fast, while allowing local preview servers to reload
+    // templates without enabling debug-mode strict variable checks.
+    'auto_reload' => filter_var($_ENV['TWIG_AUTO_RELOAD'] ?? !$isProduction, FILTER_VALIDATE_BOOLEAN),
     // Disable strict_variables in production (faster, less checks)
     'strict_variables' => !$isProduction,
     // Maximum optimization level (-1 = all optimizations enabled)

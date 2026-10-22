@@ -141,10 +141,21 @@ class PagesController extends BaseController
 
         // Home template selection. Keep in sync with PageController::home() $validTemplates / $templateMap.
         $homeTemplate = (string)($data['home_template'] ?? 'classic');
-        if (!in_array($homeTemplate, ['classic', 'modern', 'parallax', 'masonry', 'snap', 'gallery', 'editorial', 'justified', 'slideshow', 'split', 'bento', 'filmstrip'], true)) {
+        if (!in_array($homeTemplate, ['classic', 'modern', 'parallax', 'masonry', 'snap', 'gallery', 'editorial', 'justified', 'slideshow', 'split', 'bento', 'filmstrip', 'axel', 'selects'], true)) {
             $homeTemplate = 'classic';
         }
         $svc->set('home.template', $homeTemplate);
+        // The Axel-inspired option is a coordinated portfolio theme: use its
+        // matching Works index and album detail presentation by default.
+        // Those selectors remain independently editable from Pages → Galleries
+        // and Settings → Gallery after the theme has been applied.
+        if ($homeTemplate === 'axel') {
+            $svc->set('galleries.template', 'axel');
+            $svc->set('gallery.page_template', 'axel');
+        } elseif ($homeTemplate === 'selects') {
+            $svc->set('galleries.template', 'contact-sheet');
+            $svc->set('gallery.page_template', 'magazine');
+        }
 
         // Pure Masonry settings
         $masonryGapH = (int)($data['masonry_gap_h'] ?? 0);
@@ -203,7 +214,7 @@ class PagesController extends BaseController
 
         // Invalidate home page cache and related caches
         $pageCache = new PageCacheService($svc, $this->db);
-        $pageCache->invalidateByTags(CacheTags::homeRelated());
+        $pageCache->invalidateByTags(array_merge(CacheTags::homeRelated(), [CacheTags::GALLERIES]));
         $pageCache->invalidateHome();
 
         // Invalidate Twig globals cache (home settings affect layout)
@@ -414,7 +425,7 @@ class PagesController extends BaseController
 
         // Save global page template
         $pageTemplate = (string)($data['page_template'] ?? 'classic');
-        $allowedTemplates = ['classic', 'hero', 'magazine'];
+        $allowedTemplates = ['classic', 'hero', 'magazine', 'axel'];
         try {
             $customTemplates = Hooks::applyFilter('available_album_page_templates', []);
             foreach ($customTemplates as $template) {

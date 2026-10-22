@@ -26,17 +26,25 @@ final class Sanitizer
         ];
 
         // Use DOMDocument to parse HTML to prevent regex-based bypasses
-        $dom = new \DOMDocument();
-        // Suppress warnings for malformed HTML, as we are cleaning it
-        @$dom->loadHTML('<div>' . $dirtyHtml . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $dom = new \DOMDocument('1.0', 'UTF-8');
+        // Suppress warnings for malformed HTML, as we are cleaning it. The
+        // XML declaration makes libxml preserve Vietnamese and other UTF-8 text.
+        $previousErrorMode = libxml_use_internal_errors(true);
+        $loaded = @$dom->loadHTML('<?xml encoding="UTF-8"><div>' . $dirtyHtml . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousErrorMode);
 
         // Get the root element (the div we wrapped around the content)
         $root = $dom->documentElement;
-        if (!$root) {
+        if (!$loaded || !$root) {
             return '';
         }
 
-        self::sanitizeNode($root, $allowedTags, $allowedAttributes);
+        // The root div is a parsing wrapper, not user content. Sanitize its
+        // children so plain text remains intact and the wrapper is never emitted.
+        foreach (iterator_to_array($root->childNodes) as $child) {
+            self::sanitizeNode($child, $allowedTags, $allowedAttributes);
+        }
 
         // Extract the sanitized HTML
         $cleanHtml = '';

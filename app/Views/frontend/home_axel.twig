@@ -1,0 +1,189 @@
+{% extends "frontend/_layout.twig" %}
+{% import "frontend/_lqip_macros.twig" as lqip %}
+{% import "frontend/_home_photo.twig" as photo %}
+{% import "frontend/_axel_content_macros.twig" as labels %}
+
+{% block styles %}
+{% include 'frontend/_lcp_preload.twig' %}
+{{ lqip.lqip_styles()|raw }}
+{% endblock %}
+
+{% block content %}
+{% set visible_images = [] %}
+{% for album in albums|default([]) %}
+  {% set album_images = all_images|default([])|filter(image => image.album_slug == album.slug) %}
+  {% if album_images|length %}{% set visible_images = visible_images|merge([album_images|first]) %}{% endif %}
+{% endfor %}
+{% if visible_images|length == 0 %}{% set visible_images = all_images|default([]) %}{% endif %}
+{% set hero_title = home_settings.hero_title|default('Việt Thái')|trim %}
+{% set hero_subtitle = home_settings.hero_subtitle|default('Chân dung · Nghi lễ · Đời thường')|trim %}
+{% set hero_order = ['chuyen-dong-phia-sau-khung-hinh', 'nghi-le-ngay-vui', 'chan-dung-anh-nhin-cu-chi', 'doi-thuong-nhung-khoang-lang', 'khong-gian-anh-den-va-huong-vi'] %}
+{% set hero_images = [] %}
+{% for hero_slug in hero_order %}
+  {% set hero_image = all_images|default([])|filter(image => image.album_slug == hero_slug)|first %}
+  {% if hero_image %}{% set hero_images = hero_images|merge([hero_image]) %}{% endif %}
+{% endfor %}
+{% if hero_images|length < 3 %}{% set hero_images = visible_images|slice(0, 5) %}{% endif %}
+{% set works_url = base_path ~ '/' ~ (galleries_slug|default('galleries')) %}
+{% set profile_url = about_url starts with '/' ? about_url : '/' ~ about_url %}
+
+<div class="az-home" data-axel-home>
+  <section class="az-section az-hero" id="chapter-01" data-axel-chapter data-chapter-label="Hero" aria-labelledby="az-hero-title">
+    <div class="az-hero__topline">
+      <span>Nhiếp ảnh · {{ site_title|default('Việt Thái')|e }}</span>
+      <span>Portfolio <b>01—05</b></span>
+      <span>Việt Nam · 2026</span>
+    </div>
+
+    {% if hero_images|first %}
+    <div class="az-hero__visual" aria-hidden="true">
+      {{ photo.picture(hero_images|first, base_path, '(min-width: 900px) 42vw, 88vw', 0, 1, '', '') }}
+    </div>
+    {% endif %}
+
+    <p class="az-hero__eyebrow">Chân dung · Nghi lễ · Đời thường</p>
+    <h1 class="az-hero__wordmark" id="az-hero-title">{{ hero_title|upper|e }}</h1>
+
+    <div class="az-hero__pill" aria-label="Lĩnh vực nhiếp ảnh">
+      <span>CHÂN DUNG</span><i aria-hidden="true">✳</i><span>NGHI LỄ</span><i aria-hidden="true">✳</i><span>ĐỜI THƯỜNG</span>
+    </div>
+
+    <div class="az-hero__captions">
+      <p>{{ hero_subtitle|e }}</p>
+      <p>Nguyễn Đình Việt Thái<br>Photographer · Việt Nam</p>
+    </div>
+
+    <div class="az-hero__bottom">
+      <span>Nguyễn Đình Việt Thái</span>
+      <a href="#chapter-04">Xem tác phẩm <b aria-hidden="true">↓</b></a>
+      <span>{{ albums|default([])|length }} bộ ảnh · {{ all_images|default([])|length }} khung hình</span>
+    </div>
+  </section>
+
+  <section class="az-section az-about" id="chapter-02" data-axel-chapter data-chapter-label="About me" aria-labelledby="az-about-title">
+    <div class="az-section-cap"><span>02 / 05 · About me</span><span>Người đứng sau ống kính</span></div>
+    <div class="az-about__layout">
+      <h2 class="az-about__vertical" id="az-about-title">ABOUT ME</h2>
+      <div class="az-about__copy">
+        <p class="az-kicker">Photographer · Việt Nam</p>
+        <h3>{{ about_title|default('Nguyễn Đình Việt Thái')|e }}</h3>
+        {% if about_subtitle|default('')|trim %}<p class="az-about__intro">{{ about_subtitle|e }}</p>
+        {% else %}
+        <p class="az-about__intro">Tôi tìm kiếm những khoảnh khắc chân thật — ánh nhìn, cử chỉ và những kết nối nhỏ làm nên câu chuyện của mỗi người.</p>
+        {% endif %}
+        <dl class="az-about__facts">
+          <div><dt>Chủ thể</dt><dd>{{ hero_subtitle|e }}</dd></div>
+          <div><dt>Bộ sưu tập</dt><dd>{{ '%02d'|format(albums|default([])|length) }} bộ ảnh</dd></div>
+          <div><dt>Kho tư liệu</dt><dd>{{ all_images|default([])|length }} khung hình</dd></div>
+          <div><dt>Khám phá</dt><dd><a href="{{ works_url|e('html_attr') }}">Toàn bộ tác phẩm ↗</a></dd></div>
+        </dl>
+        <a class="az-text-link" href="{{ profile_url|e('html_attr') }}">Đọc thêm về tác giả <span aria-hidden="true">↗</span></a>
+      </div>
+      {% if about_photo_url|default('')|trim %}
+      <figure class="az-about__images az-about__images--portrait">
+        <img src="{{ about_photo_url starts with '/' ? base_path ~ about_photo_url : about_photo_url }}" alt="Chân dung {{ about_title|default('Nguyễn Đình Việt Thái')|e('html_attr') }}" loading="lazy" decoding="async">
+        <figcaption>Nguyễn Đình Việt Thái · Photographer</figcaption>
+      </figure>
+      {% else %}
+      <div class="az-about__images" aria-label="Một vài khoảnh khắc trong portfolio">
+        {% for image in visible_images|slice(0, 2) %}
+        <a class="az-about__image az-about__image--{{ loop.index }} axref-reveal" href="{{ base_path }}/album/{{ image.album_slug|e('html_attr') }}" aria-label="Mở bộ ảnh {{ image.album_title|default('Việt Thái')|e('html_attr') }}" style="--axref-delay: {{ (loop.index0 * 100) }}ms">
+          {{ photo.picture(image, base_path, '(min-width: 900px) 22vw, 42vw', loop.index0, 2, '', '') }}
+          <span>0{{ loop.index }} <b>{{ labels.album_title(image.album_slug|default(''), image.album_title|default('')) }}</b></span>
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="az-section az-moments az-story" id="chapter-03" data-axel-chapter data-chapter-label="My story" aria-labelledby="az-moments-title">
+    <div class="az-section-cap"><span>03 / 05 · My story</span><span>Góc nhìn · Khoảnh khắc</span></div>
+    <div class="az-moments__heading axref-reveal">
+      <p class="az-kicker">My story · Một bộ ảnh, nhiều lát cắt</p>
+      <h2 id="az-moments-title">Những câu chuyện<br><em>ở quanh ta.</em></h2>
+      <p>Tôi bắt đầu bằng việc quan sát và hiện diện. Từ ánh nhìn, nghi lễ đến nhịp sống thường ngày, mỗi khung hình lưu lại một điều đã thực sự diễn ra.</p>
+    </div>
+    {% if about_text|default('')|trim %}
+    <div class="az-story__bio rich-text-content">{{ about_text|safe_html }}</div>
+    {% else %}
+    <p class="az-story__bio">Chân dung, ngày vui và những khoảng lặng đời thường — ba lát cắt cùng tạo nên câu chuyện Việt Thái đang kể qua hình ảnh.</p>
+    {% endif %}
+    <div class="az-moments__gallery">
+      {% for image in hero_images|slice(0, 3) %}
+      <a class="az-moment-card az-moment-card--{{ loop.index }} axref-reveal" href="{{ base_path }}/album/{{ image.album_slug|e('html_attr') }}" aria-label="Mở bộ ảnh {{ image.album_title|default('Việt Thái')|e('html_attr') }}" style="--axref-delay: {{ (loop.index0 * 110) }}ms">
+        {{ photo.picture(image, base_path, '(min-width: 1100px) 30vw, (min-width: 681px) 32vw, 48vw', loop.index0, 3, '', '') }}
+        <span><b>0{{ loop.index }}</b>{{ labels.album_title(image.album_slug|default(''), image.album_title|default('')) }}</span>
+      </a>
+      {% else %}
+      <p class="az-empty">Ảnh mới sẽ xuất hiện tại đây.</p>
+      {% endfor %}
+    </div>
+    <div class="az-moments__foot"><span>Nguyễn Đình Việt Thái</span><span>Chân dung · Nghi lễ · Đời thường</span></div>
+  </section>
+
+  <section class="az-section az-works az-job" id="chapter-04" data-axel-chapter data-chapter-label="My job" aria-labelledby="az-works-title">
+    <div class="az-section-cap"><span>04 / 05 · My job</span><a href="{{ works_url|e('html_attr') }}">Tất cả tác phẩm ↗</a></div>
+    <div class="az-works__heading axref-reveal">
+      <p class="az-kicker">{{ home_settings.albums_subtitle|default('Chân dung, nghi lễ và đời sống qua ống kính')|e }}</p>
+      <h2 id="az-works-title">{{ home_settings.albums_title|default('Những câu chuyện')|e }}</h2>
+    </div>
+    <div class="az-work-grid">
+      {% set rendered_work_count = 0 %}
+      {% for album in albums|default([]) %}
+        {% set feature_image = all_images|default([])|filter(image => image.album_slug == album.slug)|first %}
+        {% if feature_image %}
+          {% set rendered_work_count = rendered_work_count + 1 %}
+          <a class="az-work-card axref-reveal" href="{{ base_path }}/album/{{ album.slug|e('html_attr') }}" style="--axref-delay: {{ (loop.index0 % 3 * 100) }}ms">
+            {{ photo.picture(feature_image, base_path, '(min-width: 900px) 45vw, 92vw', loop.index0, 4, '', '') }}
+            <span class="az-work-card__index">{{ '%02d'|format(loop.index) }} <i aria-hidden="true">↗</i></span>
+            <span class="az-work-card__meta">{{ album.category_name|default(album.category.name|default('Tác phẩm'))|e }}{% if album.shoot_date %} · {{ album.shoot_date|date('Y') }}{% endif %}</span>
+            <h3>{{ labels.album_title(album.slug, album.title|default('')) }}</h3>
+          </a>
+        {% endif %}
+      {% endfor %}
+      {% if rendered_work_count == 0 %}<p class="az-empty">Chưa có bộ ảnh được công khai.</p>{% endif %}
+    </div>
+  </section>
+
+  <section class="az-section az-contact" id="chapter-05" data-axel-chapter data-chapter-label="Contact me" aria-labelledby="az-contact-title">
+    <div class="az-section-cap"><span>05 / 05 · Contact me</span><span>Việt Nam · Làm việc cùng nhau</span></div>
+    <div class="az-contact__main axref-reveal">
+      <div>
+        <p class="az-kicker">Contact me</p>
+        <h2 id="az-contact-title">Hãy cùng kể<br><em>một câu chuyện.</em></h2>
+      </div>
+      <div class="az-contact__aside">
+        {% if contact_intro|default('')|trim %}<div class="az-contact__intro rich-text-content">{{ contact_intro|safe_html }}</div>
+        {% elseif about_footer_text|default('')|trim %}<div class="az-contact__intro rich-text-content">{{ about_footer_text|safe_html }}</div>
+        {% else %}<p>Dù là một chân dung, một ngày đáng nhớ hay một câu chuyện đời thường, tôi luôn sẵn lòng lắng nghe ý tưởng của bạn.</p>{% endif %}
+        <a class="az-contact__button" href="{{ (profile_url ~ '#contact')|e('html_attr') }}">Bắt đầu trò chuyện <span aria-hidden="true">↗</span></a>
+        {% if contact_email or contact_phone %}
+        <div class="az-contact__details" aria-label="Thông tin liên hệ">
+          {% if contact_email %}<a href="mailto:{{ contact_email|e('html_attr') }}">{{ contact_email|e }}</a>{% endif %}
+          {% if contact_phone %}<a href="tel:{{ contact_phone|replace({' ': '', '-': '', '.': ''})|e('html_attr') }}">{{ contact_phone|e }}</a>{% endif %}
+        </div>
+        {% endif %}
+        <div class="az-contact__socials" aria-label="Mạng xã hội">
+          {% if about_socials|default({})|length %}
+            {% for name, url in about_socials %}<a href="{{ url|e('html_attr') }}" target="_blank" rel="me noopener noreferrer">{{ name|e }} ↗</a>{% endfor %}
+          {% else %}
+            {% for profile in social_profiles|default([])|slice(0, 4) %}<a href="{{ profile.url|e('html_attr') }}" target="_blank" rel="noopener noreferrer">{{ profile.name|default('Social')|e }} ↗</a>{% endfor %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <footer class="az-footer">
+      <div class="az-footer__bottom">
+        <span>{% if site_copyright|default('')|trim %}{{ site_copyright|replace_year }}{% else %}© {{ 'now'|date('Y') }} {{ site_title|default('Nguyễn Đình Việt Thái')|e }}{% endif %}</span>
+        <a href="#chapter-01">Về đầu trang ↑</a>
+      </div>
+    </footer>
+  </section>
+</div>
+{{ do_action('frontend_home_after', {base_path: base_path}) }}
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce() }}">{{ lqip.lqip_script()|raw }}</script>
+{% endblock %}

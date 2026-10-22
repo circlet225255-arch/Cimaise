@@ -235,7 +235,7 @@ class CacheWarmService
         // Mirror PageController::home() exactly so the warmed cache matches the live
         // render: every full-grid template loads ALL unique images at once (no
         // progressive loading), with masonry_max_images applied only to masonry.
-        $gridTemplates = ['masonry', 'editorial', 'justified', 'slideshow', 'split', 'bento', 'filmstrip'];
+        $gridTemplates = ['masonry', 'editorial', 'justified', 'slideshow', 'split', 'bento', 'filmstrip', 'axel', 'selects'];
         if (in_array($homeTemplate, $gridTemplates, true)) {
             $masonryMaxImages = $homeTemplate === 'masonry' ? ($homeSettings['masonry_max_images'] ?? 0) : 0;
             $imageResult = $homeImageService->getAllImages($masonryMaxImages, $includeNsfw);
@@ -309,6 +309,8 @@ class CacheWarmService
             'split' => 'frontend/home_split.twig',
             'bento' => 'frontend/home_bento.twig',
             'filmstrip' => 'frontend/home_filmstrip.twig',
+            'axel' => 'frontend/home_axel.twig',
+            'selects' => 'frontend/home_selects.twig',
         ];
         $templateFile = $templateMap[$homeTemplate] ?? 'frontend/home.twig';
 
@@ -348,9 +350,13 @@ class CacheWarmService
         // Get page texts
         $pageTexts = [
             'title' => (string) ($this->settings->get('galleries.title', 'Galleries') ?? 'Galleries'),
+            'subtitle' => (string) ($this->settings->get('galleries.subtitle', '') ?? ''),
             'description' => (string) ($this->settings->get('galleries.description', '') ?? ''),
             'hero_text' => (string) ($this->settings->get('galleries.hero_text', '') ?? ''),
         ];
+        $galleriesTemplateSlug = (string) ($this->settings->get('galleries.template', 'classic') ?? 'classic');
+        $galleriesTemplateFile = \App\Controllers\Frontend\GalleriesController::PAGE_TEMPLATES[$galleriesTemplateSlug]
+            ?? \App\Controllers\Frontend\GalleriesController::PAGE_TEMPLATES['classic'];
 
         // Get filter settings
         $filterSettings = $this->getFilterSettings();
@@ -399,6 +405,8 @@ class CacheWarmService
         // Build cacheable data
         $cacheableData = [
             'albums' => $albums,
+            'galleries_template' => $galleriesTemplateSlug,
+            'galleries_slug' => (string) ($this->settings->get('galleries.slug', 'galleries') ?? 'galleries'),
             'filter_settings' => $filterSettings,
             'page_texts' => $pageTexts,
             'filter_options' => $filterOptions,
@@ -406,10 +414,10 @@ class CacheWarmService
             'parent_categories' => $parentCategories,
         ];
 
-        return $this->pageCacheService->set('galleries', [
-            'template_file' => 'frontend/galleries.twig',
+        return $this->pageCacheService->setWithTags(PageCacheService::galleriesPageKey($galleriesTemplateSlug), [
+            'template_file' => $galleriesTemplateFile,
             'data' => $cacheableData,
-        ]);
+        ], [CacheTags::GALLERIES, CacheTags::NAVIGATION]);
     }
 
     /**

@@ -119,3 +119,17 @@ Options -Indexes
   Order allow,deny
   Deny from all
 </FilesMatch>
+
+
+# Block installer after setup
+<IfModule mod_authz_core.c>
+    <FilesMatch "^installer\.php$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <FilesMatch "^installer\.php$">
+        Order Allow,Deny
+        Deny from all
+    </FilesMatch>
+</IfModule>

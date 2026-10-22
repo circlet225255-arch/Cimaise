@@ -154,7 +154,7 @@ class SettingsController extends BaseController
 
         $galleryPageTemplate = (string)($data['gallery_page_template'] ?? 'classic');
         $allowedPageTemplates = array_merge(
-            ['classic', 'hero', 'magazine'],
+            ['classic', 'hero', 'magazine', 'axel'],
             array_values(array_filter(array_map(
                 static fn (array $template) => is_string($template['value'] ?? null) ? $template['value'] : null,
                 $this->getPluginAlbumPageTemplates()

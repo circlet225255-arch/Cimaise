@@ -15,12 +15,15 @@ use App\Support\Database;
 class CacheMiddleware implements MiddlewareInterface
 {
     private ?PageCacheService $pageCacheService = null;
+    private readonly string $appVersion;
 
     public function __construct(
         private readonly SettingsService $settings,
-        private readonly ?Database $database = null
+        private readonly ?Database $database = null,
+        ?string $appVersion = null
     ) {
         $this->pageCacheService = new PageCacheService($this->settings, $this->database);
+        $this->appVersion = $appVersion ?? $this->readAppVersion();
     }
 
     public function process(Request $request, Handler $handler): Response
@@ -67,7 +70,7 @@ class CacheMiddleware implements MiddlewareInterface
             }
         }
 
-        $response = $handler->handle($request);
+        $response = $this->versionMediaUrls($handler->handle($request));
 
         if (!$cacheEnabled) {
             return $response;
@@ -390,7 +393,11 @@ class CacheMiddleware implements MiddlewareInterface
         if ($backend === 'database') {
             $hash = $this->pageCacheService->getHash($cacheType);
             if ($hash) {
-                return '"' . $hash . '"';
+                // Media files are cached immutably by the browser and service
+                // worker. When a corrected variant is written under the same
+                // filename, the HTML must receive a new validator so clients
+                // don't keep a stale page containing the old media URLs.
+                return '"' . hash('sha256', $this->appVersion . ':' . $hash) . '"';
             }
             return null;
         }
@@ -406,7 +413,7 @@ class CacheMiddleware implements MiddlewareInterface
             if ($mtime === false || $size === false) {
                 return null;
             }
-            return '"' . md5($mtime . '-' . $size) . '"';
+            return '"' . hash('sha256', $this->appVersion . ':' . $mtime . '-' . $size) . '"';
         }
 
         return null;
@@ -501,6 +508,88 @@ class CacheMiddleware implements MiddlewareInterface
             '/site.webmanifest',
         ];
         return in_array($path, $dynamicRoutes, true);
+    }
+
+    /**
+     * Append the application version to media URLs in rendered HTML.
+     *
+     * Public media responses are intentionally cached as immutable for a year.
+     * If an image variant is regenerated with the same path, those caches still
+     * contain the previous bytes. A versioned URL makes each corrected variant
+     * a new cache key across every frontend template, including srcsets and
+     * media URLs embedded in inline scripts.
+     */
+    private function versionMediaUrls(Response $response): Response
+    {
+        if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
+            return $response;
+        }
+
+        $contentType = strtolower($response->getHeaderLine('Content-Type'));
+        if ($contentType !== '' && !str_contains($contentType, 'text/html')) {
+            return $response;
+        }
+
+        $body = $response->getBody();
+        $size = $body->getSize();
+        if (!$body->isSeekable() || ($size !== null && $size > 8 * 1024 * 1024)) {
+            return $response;
+        }
+
+        $body->rewind();
+        $html = $body->getContents();
+        $body->rewind();
+        if ($html === '') {
+            return $response;
+        }
+
+        $version = rawurlencode($this->appVersion);
+        $pattern = '~(^|[\\s"\'=,(])(/(?:[^/?#\\s"\'<>]+/)*media/[^/?#\\s"\'<>]+\\.(?:avif|webp|jxl|jpe?g|png|gif))(\\?[^"\'\\s<>#]*)?~i';
+        $updated = preg_replace_callback($pattern, static function (array $matches) use ($version): string {
+            $prefix = $matches[1];
+            $url = $matches[2];
+            $query = $matches[3] ?? '';
+
+            if ($query === '') {
+                return $prefix . $url . '?v=' . $version;
+            }
+
+            if (preg_match('/(?:^|&)v=[^&]*/', substr($query, 1))) {
+                $query = preg_replace_callback(
+                    '/([?&]v=)[^&]*/',
+                    static fn (array $versionMatch): string => $versionMatch[1] . $version,
+                    $query
+                ) ?? $query;
+            } else {
+                $query .= '&v=' . $version;
+            }
+
+            return $prefix . $url . $query;
+        }, $html);
+
+        if (!is_string($updated) || $updated === $html) {
+            return $response;
+        }
+
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, $updated);
+        rewind($stream);
+
+        return $response
+            ->withBody(new \Slim\Psr7\Stream($stream))
+            ->withoutHeader('Content-Length');
+    }
+
+    private function readAppVersion(): string
+    {
+        $versionFile = dirname(__DIR__, 2) . '/version.json';
+        if (!is_file($versionFile)) {
+            return '1.0.0';
+        }
+
+        $data = json_decode((string) @file_get_contents($versionFile), true);
+        $version = is_array($data) ? ($data['version'] ?? null) : null;
+        return is_string($version) && $version !== '' ? $version : '1.0.0';
     }
 
     private function addDynamicAssetCache(Response $response): Response

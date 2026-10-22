@@ -1,8 +1,12 @@
 <section class="pt-8 pb-16 relative z-10 overflow-x-clip">
+  {% set albums_title = home_settings.albums_title|default('')|trim %}
+  {% set albums_subtitle = home_settings.albums_subtitle|default('')|trim %}
+  {% if albums_title or albums_subtitle %}
   <div class="text-center mb-12">
-    <h2 class="text-3xl md:text-4xl font-light text-black mb-4">{{ home_settings.albums_title|default('Latest Albums')|e }}</h2>
-    <p class="text-lg text-neutral-600 max-w-xl mx-auto">{{ home_settings.albums_subtitle|default('Discover my recent photographic work, from analog experiments to digital explorations.')|e }}</p>
+    {% if albums_title %}<h2 class="text-3xl md:text-4xl font-light text-black mb-4">{{ albums_title|e }}</h2>{% endif %}
+    {% if albums_subtitle %}<p class="text-lg text-neutral-600 max-w-xl mx-auto">{{ albums_subtitle|e }}</p>{% endif %}
   </div>
+  {% endif %}
 
   {% if albums|length > 0 %}
   <div class="albums-carousel-container relative overflow-hidden">

@@ -1,6 +1,8 @@
+{%- set _selects_theme = (home_settings.template|default(home_template|default('')) == 'selects') or (about_theme|default('') == 'selects') -%}
 <!DOCTYPE html>
 <html lang="{{ site_language|default(lang|default('en'))|e('html_attr') }}" class="no-js{% if dark_mode|default(false) %} dark{% endif %}">
 <head>
+    {{ vite_dev_client()|raw }}
     <!-- JS flag class on <html> for no-JS fallbacks + visitor theme (runs before paint to avoid FOUC) -->
     <script nonce="{{ csp_nonce() }}">(function(){ var d=document.documentElement; d.classList.remove('no-js'); d.classList.add('js'); window.basePath = '{{ base_path|e("js") }}'; window.__showExifInLightbox = {{ lightbox_show_exif ? 'true' : 'false' }}; var allow={{ (allow_theme_toggle ?? true) ? 'true' : 'false' }}; if(allow){ try{ var t=localStorage.getItem('cimaise-theme'); if(t==='dark'){d.classList.add('dark');} else if(t==='light'){d.classList.remove('dark');} }catch(e){} } })();</script>
     <meta charset="UTF-8">
@@ -26,8 +28,8 @@
     <link rel="manifest" href="{{ base_path }}/site.webmanifest">
     <link rel="alternate" type="application/rss+xml" title="{{ site_title|default('Cimaise') }} — RSS" href="{{ base_path }}/feed.xml">
     <link rel="alternate" type="application/atom+xml" title="{{ site_title|default('Cimaise') }} — Atom" href="{{ base_path }}/feed/atom">
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f5f5">
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#43381A">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#43381A">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Cimaise">
@@ -238,17 +240,47 @@
     {{ template_custom_css|raw }}
     {% endif %}
 
+    <style nonce="{{ csp_nonce() }}">
+      :root {
+        --retro-paper: #43381A;
+        --retro-paper-light: #F4C090;
+        --retro-paper-mid: #DEA733;
+        --retro-paper-deep: #B9905C;
+        --retro-ink: #100B05;
+        --retro-ink-soft: #2C2415;
+        --retro-muted: #B9905C;
+        --retro-olive: #DEA733;
+        --retro-olive-soft: #F4C090;
+        --retro-olive-dark: #A36D2D;
+        --retro-olive-deep: #43381A;
+        --retro-oxide: #A36D2D;
+        --retro-oxide-soft: #DEA733;
+        --retro-oxide-deep: #100B05;
+        --retro-ochre: #DEA733;
+        --retro-border: rgba(244, 192, 144, .24);
+        --retro-border-strong: #DEA733;
+      }
+    </style>
     {% block styles %}{% endblock %}
+    {% if home_settings.template|default('') == 'axel' or galleries_template|default('') == 'axel' or about_theme|default('') == 'axel' or album_page_template|default('') == 'axel' %}
+    <link href="{{ vite_asset('axel-reference.css') }}" rel="stylesheet">
+    {% endif %}
+    {% if _selects_theme %}
+      <link href="{{ base_path }}/assets/selects-reference.css?v={{ app_version|default('0')|e('url') }}-dream-beats-v71-photographer-title-restored" rel="stylesheet">
+    {% endif %}
 </head>
-<body class="min-h-full bg-white text-black font-sans antialiased{% if admin_logged_in|default(false) %} has-admin-bar{% endif %}">
+<body class="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] font-sans antialiased{% if admin_logged_in|default(false) %} has-admin-bar{% endif %}{% if _selects_theme %} selects-shell{% endif %}{% if home_settings.template|default('') == 'selects' %} coppola-home-shell{% endif %}{% if home_settings.template|default('') == 'axel' %} axel-home-shell{% endif %}{% if galleries_template|default('') == 'axel' %} axel-works-shell{% endif %}{% if about_theme|default('') == 'axel' %} axel-about-shell{% endif %}{% if album_page_template|default('') == 'axel' %} axel-album-shell{% endif %}{% if playground_theme|default('') == 'axel' %} axel-playground-shell{% endif %}">
     {# Keyboard/screen-reader users: jump past header + nav straight to content #}
     <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[10000] focus:bg-white focus:text-black focus:px-4 focus:py-2 focus:rounded-md focus:shadow-lg">{{ trans('nav.skip_to_content', {}, 'Skip to content') }}</a>
     {% include 'frontend/_admin_topbar.twig' %}
+    {% if home_settings.template|default('') == 'axel' or galleries_template|default('') == 'axel' or about_theme|default('') == 'axel' or album_page_template|default('') == 'axel' %}
+    {% include 'frontend/_axel_reference_shell.twig' %}
+    {% endif %}
     <div id="pswp-open-overlay" aria-hidden="true"></div>
 
     {# Centralized category filtering logic - used in desktop mega-menu, mobile menu, and JS data #}
     {# A category is visible if it has albums OR has children with albums #}
-    {% set filtered_parent_categories = parent_categories|default([])|filter(c => c.albums_count > 0 or c.children|filter(ch => ch.albums_count > 0)|length > 0) %}
+    {% set filtered_parent_categories = parent_categories|default([])|filter(c => (c.name|default('')|trim != '') and (c.albums_count > 0 or c.children|filter(ch => ch.name|default('')|trim != '' and ch.albums_count > 0)|length > 0)) %}
 
     <!-- Header -->
     <header class="border-b border-gray-200 sticky top-0 bg-white/95 backdrop-blur-md z-50" id="main-header">
@@ -261,15 +293,21 @@
                     <div class="text-xl font-semibold">
                         <a href="{{ base_path }}/" class="hover:text-gray-600 transition-colors duration-200 flex items-center gap-3">
                             {% if logo_type == 'image' and site_logo %}
-                              <img src="{{ base_path ~ site_logo }}" alt="{{ site_title|default('Portfolio')|e }}" class="h-12 w-auto">
+                              <img src="{{ base_path ~ site_logo }}" alt="{{ (_selects_theme ? about_title|default('Nguyễn Đình Việt Thái') : site_title|default('Portfolio'))|e }}" class="h-12 w-auto">
                             {% else %}
-                              {{ site_title|default('Portfolio') }}
+                              {{ (_selects_theme ? about_title|default('Nguyễn Đình Việt Thái') : site_title|default('Portfolio'))|e }}
                             {% endif %}
                         </a>
                     </div>
                     
                     <!-- Desktop Navigation -->
                     <nav class="hidden lg:flex items-center gap-6" id="desktop-nav">
+                        {% if _selects_theme %}
+                        {% set selects_about_path = about_url starts with '/' ? about_url : '/' ~ about_url %}
+                        <a href="{{ (base_path ~ '/#selected-rolls')|e('html_attr') }}" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">Work</a>
+                        <a href="{{ selects_about_path|e('html_attr') }}" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">About</a>
+                        <a href="{{ (selects_about_path ~ '#contact')|e('html_attr') }}" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">Contact</a>
+                        {% else %}
                         <a href="{{ base_path }}/" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">{{ trans('nav.home') }}</a>
                         <a href="{{ base_path }}/galleries" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">{{ trans('nav.galleries') }}</a>
                         <a href="{% if about_url starts with '/' %}{{ base_path }}{{ about_url }}{% else %}{{ about_url }}{% endif %}" class="text-sm font-medium hover:text-gray-600 transition-colors duration-200 py-2">{{ trans('nav.about') }}</a>
@@ -277,6 +315,7 @@
                         {{ hook('frontend_nav_after_about', {'base_path': base_path, 'location': 'desktop', 'csp_nonce': csp_nonce()}) }}
 
                         <!-- Categories Mega Menu -->
+                        {% if filtered_parent_categories|length > 0 and not _selects_theme %}
                         <div class="static" id="categories-dropdown">
                             <button id="categories-toggle" class="text-sm font-medium inline-flex items-center gap-2 hover:text-gray-600 transition-all duration-200 py-2 px-1 rounded-md" aria-haspopup="true" aria-expanded="false" aria-controls="categories-mega-menu">
                                 {{ trans('filter.categories') }}
@@ -311,7 +350,7 @@
                                                     <h3 class="font-medium text-sm text-gray-900 group-hover:text-black transition-colors duration-200 mb-1">{{ category.name|e }}</h3>
                                                     
                                                     <!-- Subcategories shown as text on hover -->
-                                                    {% set visible_children = category.children|filter(ch => ch.albums_count > 0) %}
+                                                    {% set visible_children = category.children|filter(ch => ch.name|default('')|trim != '' and ch.albums_count > 0) %}
                                                     {% if visible_children|length > 0 %}
                                                         <div class="subcategories-hover-text opacity-0 group-hover:opacity-100 transition-all duration-300 max-h-0 group-hover:max-h-32 overflow-hidden">
                                                             <div class="text-xs text-gray-600 mt-2 space-y-1">
@@ -337,6 +376,7 @@
                                 </div>
                             </div>
                         </div>
+                        {% endif %}
 
                         <!-- Tags Dropdown -->
                         {% if show_tags_in_header and nav_tags|default([])|length > 0 %}
@@ -359,6 +399,7 @@
                             </div>
                         </div>
                         {% endif %}
+                        {% endif %}
                     </nav>
                 </div>
 
@@ -374,6 +415,9 @@
 
                     <!-- Social Profiles + Search (grouped with tight spacing) -->
                     <div class="flex items-center">
+                      {% if _selects_theme %}
+                      <span class="selects-local-clock"><span>Giờ địa phương</span><time id="selects-local-time" aria-label="Giờ địa phương">--:--</time></span>
+                      {% endif %}
                       {% if social_profiles is defined and social_profiles|length > 0 %}
                       {% for profile in social_profiles %}
                         <a href="{{ profile.url }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-8 h-8 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors duration-200" title="{{ profile.name }}" aria-label="{{ profile.name }}">
@@ -438,11 +482,18 @@
             <div class="px-2 py-4 space-y-4">
                 <!-- Main Navigation -->
                 <div class="px-2 space-y-1">
+                    {% if _selects_theme %}
+                    {% set selects_mobile_about_path = about_url starts with '/' ? about_url : '/' ~ about_url %}
+                    <a href="{{ base_path }}/#selected-rolls" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">Work</a>
+                    <a href="{{ selects_mobile_about_path|e('html_attr') }}" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">About</a>
+                    <a href="{{ (selects_mobile_about_path ~ '#contact')|e('html_attr') }}" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">Contact</a>
+                    {% else %}
                     <a href="{{ base_path }}/" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">{{ trans('nav.home') }}</a>
                     <a href="{{ base_path }}/galleries" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">{{ trans('nav.galleries') }}</a>
                     <a href="{% if about_url starts with '/' %}{{ base_path }}{{ about_url }}{% else %}{{ about_url }}{% endif %}" class="block text-sm font-medium text-gray-900 hover:bg-gray-100 rounded-md p-3 transition-colors duration-200">{{ trans('nav.about') }}</a>
 
                     {{ hook('frontend_nav_after_about', {'base_path': base_path, 'location': 'mobile', 'csp_nonce': csp_nonce()}) }}
+                    {% endif %}
 
                     {% if is_admin %}
                     <a href="{{ base_path }}/admin" class="block text-sm font-medium text-white bg-gray-900 hover:bg-gray-700 rounded-md p-3 transition-colors duration-200">
@@ -452,11 +503,12 @@
                 </div>
                 
                 <!-- Mobile Categories -->
+                {% if filtered_parent_categories|length > 0 and not _selects_theme %}
                 <div class="border-t border-gray-200 pt-4">
                     <div class="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-2 px-3">{{ trans('filter.categories') }}</div>
                     <div class="space-y-1">
                         {% for category in filtered_parent_categories %}
-                        {% set mobile_visible_children = category.children|filter(ch => ch.albums_count > 0) %}
+                        {% set mobile_visible_children = category.children|filter(ch => ch.name|default('')|trim != '' and ch.albums_count > 0) %}
                         <div class="mobile-category-group rounded-md overflow-hidden">
                             {% if mobile_visible_children|length > 0 %}
                                 <div class="flex items-center justify-between w-full text-left font-medium bg-white hover:bg-gray-50 transition-colors duration-200">
@@ -507,9 +559,10 @@
                         {% endfor %}
                     </div>
                 </div>
+                {% endif %}
 
                 <!-- Mobile Tags -->
-                {% if show_tags_in_header and nav_tags|default([])|length > 0 %}
+                {% if show_tags_in_header and nav_tags|default([])|length > 0 and not _selects_theme %}
                 <div class="border-t border-gray-200 pt-4">
                     <div class="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-2 px-3">{{ trans('nav.tags') }}</div>
                     <div class="flex flex-wrap gap-2 px-3">
@@ -569,6 +622,23 @@
             </div>
         </div>
     </header>
+
+    {% if _selects_theme %}
+    <script nonce="{{ csp_nonce() }}">
+    (function () {
+      var clock = document.getElementById('selects-local-time');
+      if (!clock) return;
+      var formatter = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+      function updateClock() {
+        var now = new Date();
+        clock.textContent = formatter.format(now);
+        clock.dateTime = now.toISOString();
+      }
+      updateClock();
+      window.setInterval(updateClock, 60000);
+    })();
+    </script>
+    {% endif %}
 
     <!-- Dark mode toggle wiring: flips the `dark` class on <html> and persists the
          visitor's choice to localStorage (overrides the admin site default). The
@@ -2806,6 +2876,9 @@
 
     <!-- Smooth Scroll (Lenis) - Deferred (progressive enhancement) -->
     <script nonce="{{ csp_nonce() }}" type="module" src="{{ vite_asset('js/smooth-scroll.js') }}"></script>
+    {% if home_settings.template|default('') == 'axel' or galleries_template|default('') == 'axel' or about_theme|default('') == 'axel' or album_page_template|default('') == 'axel' %}
+    <script nonce="{{ csp_nonce() }}" type="module" src="{{ vite_asset('js/axel-reference.js') }}"></script>
+    {% endif %}
 
     <!-- Analytics Tracking (Cookieless) - Deferred (not critical for initial render) -->
     <script nonce="{{ csp_nonce() }}" src="{{ base_path }}/assets/js/analytics.js" defer></script>

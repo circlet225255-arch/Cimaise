@@ -15,6 +15,7 @@ test-results/
 
 # Database files (each installation creates its own)
 database/database.sqlite
+database/*.before-*.sqlite
 
 # Dependencies
 node_modules/
@@ -186,6 +187,9 @@ masonry.md
 # Reports folder
 reports/
 
+# Local render and browser-test output
+output/
+
 # Demo site (self-contained copy for showcasing)
 /demo/
 
@@ -210,5 +214,6 @@ presentazione.md
 
 # Local browser-verification artifacts
 .playwright-mcp/
+.playwright-cli/
 m8-before/
 m8-after/

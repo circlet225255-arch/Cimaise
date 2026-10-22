@@ -47,15 +47,33 @@ class SecurityTwigExtension extends AbstractExtension
             'span' => ['class'],
         ];
 
-        $doc = new \DOMDocument();
+        $doc = new \DOMDocument('1.0', 'UTF-8');
         $doc->strictErrorChecking = false;
-        libxml_use_internal_errors(true);
-        $doc->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'.$html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $previousErrorMode = libxml_use_internal_errors(true);
+        $loaded = $doc->loadHTML(
+            '<?xml encoding="UTF-8"><div>'.$html.'</div>',
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+        );
         libxml_clear_errors();
+        libxml_use_internal_errors($previousErrorMode);
 
-        $this->sanitizeNode($doc, $allowedTags, $allowedAttrs);
-        $out = $doc->saveHTML();
-        return $out ?: '';
+        $wrapper = $loaded ? $doc->documentElement : null;
+        if (!$wrapper) {
+            return '';
+        }
+
+        // Sanitize the wrapper's children and serialize only those children.
+        // Passing the whole document to sanitizeNode() stripped plain text and
+        // caused the DOM parser to discard content around its implied HTML nodes.
+        foreach (iterator_to_array($wrapper->childNodes) as $child) {
+            $this->sanitizeNode($child, $allowedTags, $allowedAttrs);
+        }
+
+        $out = '';
+        foreach ($wrapper->childNodes as $child) {
+            $out .= $doc->saveHTML($child);
+        }
+        return $out;
     }
 
     /**

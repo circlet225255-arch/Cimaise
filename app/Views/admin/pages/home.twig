@@ -131,7 +131,9 @@
                 'slideshow':  {icon: 'fa-film',           color: '#111827'},
                 'split':      {icon: 'fa-table-columns',  color: '#ea580c'},
                 'bento':      {icon: 'fa-border-all',     color: '#0d9488'},
-                'filmstrip':  {icon: 'fa-clapperboard',   color: '#be123c'}
+                'filmstrip':  {icon: 'fa-clapperboard',   color: '#be123c'},
+                'axel':       {icon: 'fa-images',          color: '#191919'},
+                'selects':    {icon: 'fa-film',            color: '#bd332b'}
               } %}
               {% for tname, t in new_templates %}
               <label class="relative flex flex-col cursor-pointer rounded-lg border-2 p-4 transition-all home-template-option {{ settings['home.template']|default('classic') == tname ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-gray-300' }}" data-template="{{ tname }}">
@@ -141,11 +143,11 @@
                     <i class="fas {{ t.icon }} text-white text-sm"></i>
                   </div>
                   <div>
-                    <span class="font-semibold text-gray-900">{{ trans('admin.pages.home.template_' ~ tname) }}</span>
-                    <span class="block text-xs text-gray-500">{{ trans('admin.pages.home.template_' ~ tname ~ '_subtitle') }}</span>
+                    <span class="font-semibold text-gray-900">{{ tname == 'axel' ? 'Axel-inspired Portfolio' : (tname == 'selects' ? 'Selects · Contact Sheet' : trans('admin.pages.home.template_' ~ tname)) }}</span>
+                    <span class="block text-xs text-gray-500">{{ tname == 'axel' ? 'Editorial image-led homepage' : (tname == 'selects' ? '35 mm film archive for your portfolio' : trans('admin.pages.home.template_' ~ tname ~ '_subtitle')) }}</span>
                   </div>
                 </div>
-                <p class="text-xs text-gray-600">{{ trans('admin.pages.home.template_' ~ tname ~ '_desc') }}</p>
+                <p class="text-xs text-gray-600">{{ tname == 'axel' ? 'Large wordmark, asymmetric photo collage, featured albums and a minimal contact footer.' : (tname == 'selects' ? 'Three scrollable film strips, selected albums, photographer profile, studio notes and contact.' : trans('admin.pages.home.template_' ~ tname ~ '_desc')) }}</p>
                 <div class="absolute top-2 right-2 template-check {{ settings['home.template']|default('classic') == tname ? '' : 'hidden' }}">
                   <i class="fas fa-check-circle text-black"></i>
                 </div>
@@ -266,7 +268,7 @@
 
         <!-- ========== CLASSIC HOME SETTINGS ========== -->
         {# Hero/title fields are shared by classic + the new hero-based templates. #}
-        {% set hero_based = ['classic', 'editorial', 'justified', 'slideshow', 'split', 'bento', 'filmstrip'] %}
+        {% set hero_based = ['classic', 'editorial', 'justified', 'slideshow', 'split', 'bento', 'filmstrip', 'selects'] %}
         <div id="classic-home-settings" class="{{ settings['home.template']|default('classic') not in hero_based ? 'hidden' : '' }}">
           <div class="card">
             <div class="p-6">
@@ -558,6 +560,31 @@
           </ul>
         </div>
       </div>
+
+      <div id="axel-home-info" class="card {{ settings['home.template']|default('classic') != 'axel' ? 'hidden' : '' }}">
+        <div class="p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Axel-inspired Portfolio</h3>
+          <p class="text-sm text-gray-600 mb-4">A reusable editorial homepage that uses your own Cimaise albums and image variants.</p>
+          <ul class="text-sm text-gray-600 space-y-2">
+            <li>Large site wordmark and asymmetric photo collage.</li>
+            <li>Featured albums link to their existing album pages.</li>
+            <li>Selecting this theme also applies the matching Works index and horizontal album presentation. About uses your configured About page and contact form.</li>
+            <li>Use only images and fonts that you own or have permission to use.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div id="selects-home-info" class="card {{ settings['home.template']|default('classic') != 'selects' ? 'hidden' : '' }}">
+        <div class="p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Selects · 35 mm Contact Sheet</h3>
+          <p class="text-sm text-gray-600 mb-4">An image-led portfolio using your published Cimaise albums and photos.</p>
+          <ul class="text-sm text-gray-600 space-y-2">
+            <li>Three horizontal film strips with keyboard, touch and reduced-motion support.</li>
+            <li>Selected albums link to their existing pages; About and Contact use your saved profile details.</li>
+            <li>Choosing this theme also selects the Contact Sheet works index and Magazine album pages.</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
   </div>
@@ -598,6 +625,8 @@
       const masonryInfo = document.getElementById('masonry-home-info');
       const snapInfo = document.getElementById('snap-home-info');
       const galleryInfo = document.getElementById('gallery-home-info');
+      const axelInfo = document.getElementById('axel-home-info');
+      const selectsInfo = document.getElementById('selects-home-info');
 
       if (!templateOptions.length) return; // Guard if elements not found
 
@@ -628,7 +657,7 @@
 
           // Toggle settings and info visibility based on template.
           // Hero/title fields are shared by classic + the new hero-based templates.
-          const heroBased = ['classic', 'editorial', 'justified', 'slideshow', 'split', 'bento', 'filmstrip'];
+          const heroBased = ['classic', 'editorial', 'justified', 'slideshow', 'split', 'bento', 'filmstrip', 'axel', 'selects'];
           if (classicSettings) classicSettings.classList.toggle('hidden', !heroBased.includes(template));
           const heroToggle = document.getElementById('classic-hero-toggle');
           if (heroToggle) heroToggle.classList.toggle('hidden', template !== 'classic');
@@ -639,6 +668,8 @@
           if (masonryInfo) masonryInfo.classList.toggle('hidden', template !== 'masonry');
           if (snapInfo) snapInfo.classList.toggle('hidden', template !== 'snap');
           if (galleryInfo) galleryInfo.classList.toggle('hidden', template !== 'gallery');
+          if (axelInfo) axelInfo.classList.toggle('hidden', template !== 'axel');
+          if (selectsInfo) selectsInfo.classList.toggle('hidden', template !== 'selects');
         });
       });
 

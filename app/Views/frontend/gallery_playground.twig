@@ -1,0 +1,193 @@
+{% extends 'frontend/_layout.twig' %}
+{% set needs_vendor_scripts = false %}
+
+{% block styles %}
+<style nonce="{{ csp_nonce() }}">
+  .axel-playground-shell #main-header, .axel-playground-shell > footer,
+  body:has(.axel-playground) #main-header, body:has(.axel-playground) > footer { display: none; }
+  .axel-playground-shell #main-content, body:has(.axel-playground) #main-content { margin: 0; }
+  .axel-playground { position: relative; min-height: 100svh; overflow: hidden; background: var(--retro-olive-deep); color: var(--retro-paper-light); font-family: var(--font-body, Inter, system-ui, sans-serif); }
+  .axel-playground-nav { position: absolute; z-index: 5; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: start; gap: 1rem; padding: 1.3rem clamp(1rem, 2.4vw, 2rem); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; }
+  .axel-playground-nav a { color: inherit; text-decoration: none; }
+  .axel-playground-brand { font-size: .8rem; font-weight: 700; letter-spacing: -.035em; }
+  .axel-playground-links { display: flex; gap: clamp(.8rem, 2vw, 2rem); }
+  .axel-playground-links a:hover { opacity: .55; }
+  .axel-playground-intro { position: relative; z-index: 2; display: flex; min-height: 100svh; flex-direction: column; align-items: center; justify-content: center; padding: 6rem 1rem 8rem; text-align: center; transition: opacity .45s, transform .6s cubic-bezier(.2,.7,.2,1); }
+  .axel-playground-title { margin: 0; font-size: clamp(3.5rem, 13vw, 13rem); line-height: .73; font-weight: 700; letter-spacing: -.095em; text-transform: uppercase; }
+  .axel-playground-instruction { margin-top: 3rem; color: var(--retro-border-strong); font-size: .65rem; letter-spacing: .14em; text-transform: uppercase; }
+  .axel-playground-mark { width: 2.8rem; height: 2.8rem; margin: 0 auto 1rem; border: 1px dashed var(--retro-border-strong); transform: rotate(45deg); }
+  .axel-playground-open { position: absolute; right: clamp(1rem, 2.4vw, 2rem); bottom: 5rem; padding: .85rem 1.2rem; border: 1px solid var(--retro-border-strong); border-radius: 99px; background: transparent; color: var(--retro-paper-light); font-size: .65rem; letter-spacing: .13em; text-transform: uppercase; cursor: pointer; }
+  .axel-playground-open:hover, .axel-playground-open:focus-visible { background: var(--retro-paper-light); color: var(--retro-ink); }
+  .axel-playground-axis { position: absolute; z-index: 6; right: clamp(1rem, 2.4vw, 2rem); bottom: 1rem; left: clamp(1rem, 2.4vw, 2rem); display: grid; grid-template-columns: 3rem 1fr 3rem; align-items: center; gap: 1rem; color: var(--retro-border-strong); font-size: .58rem; letter-spacing: .1em; }
+  .axel-playground-axis input { width: 100%; accent-color: var(--retro-ochre); cursor: ew-resize; }
+  .axel-playground-axis output { grid-column: 2; justify-self: center; color: var(--retro-ochre); }
+  .axel-playground-stage { position: absolute; inset: 0; overflow: hidden; opacity: 0; pointer-events: none; background-image: linear-gradient(rgba(248,242,230,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(248,242,230,.045) 1px, transparent 1px); background-size: 46px 46px; transition: opacity .65s; }
+  .axel-playground-stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 10%, rgba(0,0,0,.7) 100%); }
+  .axel-playground.is-open .axel-playground-intro { opacity: 0; transform: scale(.96); pointer-events: none; }
+  .axel-playground.is-open .axel-playground-stage { opacity: 1; pointer-events: auto; }
+  .axel-playground-photo { position: absolute; z-index: 1; width: clamp(7rem, 16vw, 17rem); aspect-ratio: .78; overflow: hidden; background: var(--retro-olive-deep); box-shadow: 0 18px 70px rgba(0,0,0,.55); transform: translate3d(var(--drift, 0px), 0, 0) rotate(var(--angle, 0deg)); transition: transform .3s ease; }
+  .axel-playground-photo img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(.7); }
+  .axel-playground-photo span { position: absolute; left: .5rem; bottom: .45rem; right: .5rem; padding: .3rem .45rem; background: rgba(0,0,0,.66); font-size: .55rem; letter-spacing: .09em; text-transform: uppercase; }
+  .axel-playground-status { position: absolute; z-index: 5; left: 50%; top: 50%; transform: translate(-50%,-50%); color: var(--retro-border-strong); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; }
+  .axel-playground-close { position: absolute; z-index: 7; top: 4.6rem; right: clamp(1rem, 2.4vw, 2rem); border: 0; background: transparent; color: var(--retro-paper-light); font-size: .63rem; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; }
+  .axel-playground-credits { position: absolute; z-index: 5; bottom: 1rem; left: clamp(1rem, 2.4vw, 2rem); color: var(--retro-muted); font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; }
+  @media (max-width: 768px) {
+    .axel-playground-links { gap: .8rem; }
+    .axel-playground-links a { font-size: .57rem; }
+    .axel-playground-photo { width: clamp(6rem, 31vw, 9rem); }
+    .axel-playground-open { right: 50%; transform: translateX(50%); white-space: nowrap; }
+  }
+  @media (max-width: 430px) {
+    .axel-playground-nav { padding: 1rem; }
+    .axel-playground-links { gap: .55rem; }
+    .axel-playground-links a { font-size: .52rem; }
+    .axel-playground-title { font-size: 17vw; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .axel-playground-intro, .axel-playground-stage, .axel-playground-photo { transition: none; }
+  }
+  .axel-playground { background: var(--retro-olive-deep); color: var(--retro-paper); }
+  .axel-playground-nav { border-bottom: 1px solid rgba(242,240,235,.16); }
+  .axel-playground-brand { letter-spacing: -.02em; }
+  .axel-playground-links a[aria-current="page"] { color: var(--retro-oxide-soft); }
+  .axel-playground a:focus-visible, .axel-playground button:focus-visible, .axel-playground input:focus-visible { outline: 2px solid var(--retro-oxide-soft); outline-offset: 4px; }
+  .axel-playground-intro { gap: 1.2rem; padding-top: 8rem; }
+  .axel-playground-eyebrow { margin: 0; color: var(--retro-oxide-soft); font-size: .67rem; letter-spacing: .14em; text-transform: uppercase; }
+  .axel-playground-title { font-size: clamp(3.6rem, 11vw, 10rem); line-height: .81; }
+  .axel-playground-description { max-width: 34rem; margin: 1.5rem 0 0; color: var(--retro-paper-deep); font-size: clamp(.95rem, 1.4vw, 1.1rem); line-height: 1.55; }
+  .axel-playground-instruction { margin-top: 1.4rem; }
+  .axel-playground-mark { border-color: var(--retro-oxide-soft); }
+  .axel-playground-open { position: static; margin-top: 1rem; border-color: var(--retro-oxide-soft); background: var(--retro-oxide-soft); color: var(--retro-olive-deep); }
+  .axel-playground-open:hover, .axel-playground-open:focus-visible { border-color: var(--retro-paper); background: var(--retro-paper); color: var(--retro-olive-deep); }
+  .axel-playground-axis input { accent-color: var(--retro-oxide-soft); }
+  .axel-playground-axis output { color: var(--retro-oxide-soft); }
+  .axel-playground-close { color: var(--retro-paper); }
+  .axel-playground-credits { color: var(--retro-paper-deep); }
+  @media (max-width: 768px) { .axel-playground-intro { padding: 7rem 1rem 8rem; } .axel-playground-open { position: static; transform: none; margin-top: 1.2rem; } .axel-playground-title { font-size: clamp(3.2rem, 13vw, 7rem); } }
+  @media (max-width: 430px) { .axel-playground-links { gap: .7rem; } .axel-playground-links a { font-size: .56rem; } }
+</style>
+{% endblock %}
+
+{% block content %}
+{% set playground_about_url = (about_url|default('/about'))|replace({'\\': ''}) %}
+<div class="axel-playground" data-playground data-api-url="{{ base_path }}/api/home/gallery">
+  <nav class="axel-playground-nav" aria-label="Main navigation">
+    <a class="axel-playground-brand" href="{{ base_path }}/">{{ site_title|default('Portfolio')|e }}</a>
+    <div class="axel-playground-links">
+      <a href="{{ base_path }}/">Home</a>
+      <a href="{{ base_path }}/{{ galleries_slug|default('galleries')|e('html_attr') }}">Work</a>
+      <a href="{{ playground_about_url starts with '/' ? playground_about_url : '/' ~ playground_about_url }}">About</a>
+      <a href="{{ (playground_about_url starts with '/' ? playground_about_url : '/' ~ playground_about_url) ~ '#contact' }}">Contact</a>
+    </div>
+  </nav>
+
+  <section class="axel-playground-intro" aria-labelledby="playground-title">
+    <p class="axel-playground-eyebrow">Interactive photography index</p>
+    <h1 class="axel-playground-title" id="playground-title">Gallery<br>Playground</h1>
+    <p class="axel-playground-description">A playful way to browse published photographs. Shift the scale below to move through the collection.</p>
+    <div class="axel-playground-instruction"><div class="axel-playground-mark" aria-hidden="true"></div><span>Move the scale to explore</span></div>
+    <button class="axel-playground-open" type="button" data-open-playground>Explore the photographs ↗</button>
+  </section>
+
+  <section class="axel-playground-stage" data-playground-stage aria-label="Interactive photo collection" aria-hidden="true" inert>
+    <p class="axel-playground-status" data-playground-status role="status">Select “Open playground” to load photographs.</p>
+    <button class="axel-playground-close" type="button" tabindex="-1" data-close-playground>Close ×</button>
+    <div data-playground-photos></div>
+  </section>
+
+  <div class="axel-playground-axis">
+    <span>−80</span>
+    <input id="playground-slider" type="range" min="-80" max="80" value="0" step="1" aria-label="Move the photo collection" data-playground-slider>
+    <span>+80</span>
+    <output data-playground-output for="playground-slider">0</output>
+  </div>
+  <span class="axel-playground-credits">{{ site_copyright|default(site_title)|replace_year }}</span>
+</div>
+
+<script nonce="{{ csp_nonce() }}">
+(function () {
+  const root = document.querySelector('[data-playground]');
+  if (!root) return;
+  const stage = root.querySelector('[data-playground-stage]');
+  const intro = root.querySelector('.axel-playground-intro');
+  const openButton = root.querySelector('[data-open-playground]');
+  const closeButton = root.querySelector('[data-close-playground]');
+  const photoLayer = root.querySelector('[data-playground-photos]');
+  const status = root.querySelector('[data-playground-status]');
+  const slider = root.querySelector('[data-playground-slider]');
+  const output = root.querySelector('[data-playground-output]');
+  let loaded = false;
+  let loading = false;
+  const placements = [
+    [8, 19, -7], [26, 56, 6], [46, 20, -4], [68, 52, 7], [84, 14, -5],
+    [16, 69, 5], [39, 57, -6], [57, 5, 5], [78, 72, -4], [93, 43, 6],
+    [4, 44, 4], [33, 10, -5], [61, 69, 4], [73, 22, -6], [49, 42, 7]
+  ];
+  function setOpen(open, moveFocus = true) {
+    root.classList.toggle('is-open', open);
+    stage.setAttribute('aria-hidden', open ? 'false' : 'true');
+    stage.inert = !open;
+    intro.setAttribute('aria-hidden', open ? 'true' : 'false');
+    openButton.tabIndex = open ? -1 : 0;
+    closeButton.tabIndex = open ? 0 : -1;
+    if (moveFocus) { if (open) closeButton.focus(); else openButton.focus(); }
+  }
+  function addPhoto(image, index) {
+    if (!image || !image.url) return;
+    const place = placements[index % placements.length];
+    const link = document.createElement('a');
+    link.className = 'axel-playground-photo';
+    link.href = `${window.basePath || ''}/album/${encodeURIComponent(image.album_slug || '')}`;
+    link.setAttribute('aria-label', image.album_title || image.alt || 'View project');
+    link.style.left = `${place[0]}%`;
+    link.style.top = `${place[1]}%`;
+    link.style.setProperty('--angle', `${place[2]}deg`);
+    link.style.setProperty('--depth', `${((index % 5) + 1) / 5}`);
+    const img = document.createElement('img');
+    img.src = image.url;
+    img.alt = image.alt || image.album_title || '';
+    img.loading = index < 5 ? 'eager' : 'lazy';
+    img.decoding = 'async';
+    const label = document.createElement('span');
+    label.textContent = image.album_title || 'Untitled';
+    link.append(img, label);
+    photoLayer.appendChild(link);
+  }
+  async function loadPhotos() {
+    if (loaded || loading) return;
+    loading = true;
+    status.textContent = 'Loading photographs…';
+    try {
+      const url = new URL(root.dataset.apiUrl, window.location.origin);
+      url.searchParams.set('limit', '80');
+      url.searchParams.set('mode', 'masonry');
+      const response = await fetch(url.toString(), { credentials: 'same-origin', headers: { Accept: 'application/json' } });
+      if (!response.ok) throw new Error('Photo request failed');
+      const data = await response.json();
+      const images = Array.isArray(data.images) ? data.images : [];
+      images.slice(0, 36).forEach(addPhoto);
+      status.textContent = images.length ? '' : 'No published photographs yet.';
+      loaded = true;
+    } catch (error) {
+      status.textContent = 'Could not load photographs. Close and reopen to try again.';
+    } finally {
+      loading = false;
+    }
+  }
+  openButton.addEventListener('click', function () { setOpen(true); loadPhotos(); });
+  closeButton.addEventListener('click', function () { setOpen(false); });
+  slider.addEventListener('input', function () {
+    const value = Number(slider.value) || 0;
+    output.value = String(value);
+    output.textContent = String(value);
+    const drift = value * 1.1;
+    root.querySelectorAll('.axel-playground-photo').forEach((photo) => {
+      const depth = Number(photo.style.getPropertyValue('--depth')) || 1;
+      photo.style.setProperty('--drift', `${drift * depth}px`);
+    });
+  });
+  document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && root.classList.contains('is-open')) setOpen(false); });
+  setOpen(false, false);
+})();
+</script>
+{% endblock %}

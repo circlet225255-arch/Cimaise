@@ -16,7 +16,7 @@
 
 ### Home Page Templates
 
-12 distinct homepage layouts — switch any time from the admin (or live-preview with `?template=`):
+13 distinct homepage layouts — switch any time from the admin (or live-preview with `?template=`):
 
 <table>
 <tr>
@@ -40,6 +40,8 @@
 <td width="33%"><img src="screenshot/home-filmstrip.jpg" alt="Filmstrip"><br><strong>Filmstrip</strong></td>
 </tr>
 </table>
+
+**Selects** adds a 35 mm contact-sheet portfolio with three horizontal film strips, selected albums, photographer introduction, studio notes, and contact links.
 
 ### Gallery Templates
 

@@ -797,7 +797,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $settingsData['date_format'] = 'Y-m-d';
         }
         // Must match PageController's valid home templates (no 'hero' — not a real template).
-        $validHomeTemplates = ['classic', 'modern', 'parallax', 'masonry', 'snap', 'gallery', 'editorial', 'justified', 'slideshow', 'split', 'bento', 'filmstrip'];
+        $validHomeTemplates = ['classic', 'modern', 'parallax', 'masonry', 'snap', 'gallery', 'editorial', 'justified', 'slideshow', 'split', 'bento', 'filmstrip', 'selects'];
         if (!in_array($settingsData['home_template'], $validHomeTemplates, true)) {
             $settingsData['home_template'] = 'classic';
         }
@@ -1846,6 +1846,7 @@ $requirementsPassed = !in_array(false, $requirements);
                                             'split'     => 'Split (Two-column)',
                                             'bento'     => 'Bento (Mosaic)',
                                             'filmstrip' => 'Filmstrip (Contact sheet)',
+                                            'selects'   => 'Selects (35 mm Contact Sheet)',
                                         ];
 $selectedHome = $settingsFormData['home_template'] ?? 'classic';
 foreach ($homeTemplates as $val => $label):

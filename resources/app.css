@@ -19,59 +19,56 @@ body {
 /* Custom CSS for Cimaise */
 @layer base {
   /* Color variables for light/dark mode */
-  /* Clean white + cool gray (#E6E7EB) surfaces with a single magenta accent
-     (#D70261, Pinakes brand) — shared visual language with the biblioteca admin
-     so the two read as one suite. No gradients. */
+  /* Public palette: warm cream canvas, deep teal ink, mint interaction, burnt
+     orange highlights, and taupe supporting text. */
   :root {
-    --color-bg-primary: #f6f7f9;
-    --color-bg-secondary: #ffffff;
-    --color-bg-tertiary: #e6e7eb;
-    --color-bg-primary-rgb: 246 247 249;
-    --color-bg-secondary-rgb: 255 255 255;
-    --color-bg-tertiary-rgb: 230 231 235;
-    --color-text-primary: #111827;
-    --color-text-secondary: #4b5563;
-    --color-text-tertiary: #6b7280;
-    --color-text-on-light: #111827;
-    --color-border: #e6e7eb;
-    --color-border-secondary: #f1f2f4;
-    --color-icon: #111827;
-    --color-icon-secondary: #4b5563;
-    --color-shadow: rgba(17, 24, 39, 0.06);
-    --color-shadow-hover: rgba(17, 24, 39, 0.12);
-    /* Accent (magenta) — #D70261 vs white ≈ 5.1:1, AA-safe for text + buttons */
-    --color-accent: #d70261;
-    --color-accent-hover: #b80254;
-    --color-accent-contrast: #ffffff;
-    --color-accent-soft: #fde8f1;
-    --color-accent-soft-border: #f59ec5;
-    --color-focus-ring: rgba(215, 2, 97, 0.4);
+    --color-bg-primary: #ffedb7;
+    --color-bg-secondary: #fff5d6;
+    --color-bg-tertiary: #f4e5b4;
+    --color-bg-primary-rgb: 255 237 183;
+    --color-bg-secondary-rgb: 255 245 214;
+    --color-bg-tertiary-rgb: 244 229 180;
+    --color-text-primary: #2b3a39;
+    --color-text-secondary: #685b53;
+    --color-text-tertiary: #685b53;
+    --color-text-on-light: #2b3a39;
+    --color-border: rgba(104, 91, 83, 0.34);
+    --color-border-secondary: rgba(104, 91, 83, 0.18);
+    --color-icon: #2b3a39;
+    --color-icon-secondary: #685b53;
+    --color-shadow: rgba(43, 58, 57, 0.08);
+    --color-shadow-hover: rgba(43, 58, 57, 0.16);
+    --color-accent: #4aba94;
+    --color-accent-hover: #369878;
+    --color-accent-contrast: #2b3a39;
+    --color-accent-soft: #eaf8f2;
+    --color-accent-soft-border: #4aba94;
+    --color-focus-ring: rgba(74, 186, 148, 0.52);
   }
 
   html.dark {
-    --color-bg-primary: #0f1115;
-    --color-bg-secondary: #171a1f;
-    --color-bg-tertiary: #1f242b;
-    --color-bg-primary-rgb: 15 17 21;
-    --color-bg-secondary-rgb: 23 26 31;
-    --color-bg-tertiary-rgb: 31 36 43;
-    --color-text-primary: #f3f4f6;
-    --color-text-secondary: #c2c7d0;
-    --color-text-tertiary: #9aa1ad;
-    --color-text-on-light: #111827;
-    --color-border: #2a2f37;
-    --color-border-secondary: #20242b;
-    --color-icon: #f3f4f6;
-    --color-icon-secondary: #c2c7d0;
-    --color-shadow: rgba(0, 0, 0, 0.45);
-    --color-shadow-hover: rgba(0, 0, 0, 0.6);
-    /* Slightly brighter magenta for dark surfaces */
-    --color-accent: #ec1f76;
-    --color-accent-hover: #f0357f;
-    --color-accent-contrast: #ffffff;
-    --color-accent-soft: #2a0d1b;
-    --color-accent-soft-border: #4a1730;
-    --color-focus-ring: rgba(236, 31, 118, 0.45);
+    --color-bg-primary: #2b3a39;
+    --color-bg-secondary: #344644;
+    --color-bg-tertiary: #3d514f;
+    --color-bg-primary-rgb: 43 58 57;
+    --color-bg-secondary-rgb: 52 70 68;
+    --color-bg-tertiary-rgb: 61 81 79;
+    --color-text-primary: #ffedb7;
+    --color-text-secondary: #4aba94;
+    --color-text-tertiary: #d8cba7;
+    --color-text-on-light: #2b3a39;
+    --color-border: rgba(255, 237, 183, 0.28);
+    --color-border-secondary: rgba(255, 237, 183, 0.16);
+    --color-icon: #ffedb7;
+    --color-icon-secondary: #4aba94;
+    --color-shadow: rgba(0, 0, 0, 0.28);
+    --color-shadow-hover: rgba(0, 0, 0, 0.42);
+    --color-accent: #4aba94;
+    --color-accent-hover: #6bcfa8;
+    --color-accent-contrast: #2b3a39;
+    --color-accent-soft: #344644;
+    --color-accent-soft-border: #4aba94;
+    --color-focus-ring: rgba(74, 186, 148, 0.58);
   }
 
   body {
@@ -86,8 +83,7 @@ body {
     scroll-behavior: smooth;
   }
 
-  /* Override @tailwindcss/forms' default blue (#2563eb) focus ring/border on
-     every form control so unstyled inputs pick up the amber accent, not blue. */
+  /* Override the stock form focus color so controls follow the mint accent. */
   [type='text']:focus,
   [type='email']:focus,
   [type='url']:focus,
@@ -480,21 +476,21 @@ html.dark .text-neutral-800 { color: #e5e5e5 !important; }
 
 /* Dark mode for prose content (Tailwind Typography plugin) */
 html.dark .prose-neutral {
-  --tw-prose-body: #d4d4d4;
-  --tw-prose-headings: #fafafa;
-  --tw-prose-links: #60a5fa;
-  --tw-prose-bold: #fafafa;
-  --tw-prose-counters: #a3a3a3;
-  --tw-prose-bullets: #a3a3a3;
-  --tw-prose-quotes: #d4d4d4;
-  --tw-prose-code: #fafafa;
-  --tw-prose-hr: #404040;
+  --tw-prose-body: #ffedb7;
+  --tw-prose-headings: #ffedb7;
+  --tw-prose-links: #4aba94;
+  --tw-prose-bold: #ffedb7;
+  --tw-prose-counters: #4aba94;
+  --tw-prose-bullets: #4aba94;
+  --tw-prose-quotes: #ffedb7;
+  --tw-prose-code: #ffedb7;
+  --tw-prose-hr: #4aba94;
 }
 
 html.dark .prose-neutral p,
 html.dark .prose-neutral li,
 html.dark .prose-neutral span {
-  color: #d4d4d4;
+  color: #ffedb7;
 }
 
 html.dark .prose-neutral h1,
@@ -502,11 +498,11 @@ html.dark .prose-neutral h2,
 html.dark .prose-neutral h3,
 html.dark .prose-neutral h4,
 html.dark .prose-neutral strong {
-  color: #fafafa;
+  color: #ffedb7;
 }
 
 html.dark .prose-neutral a {
-  color: #60a5fa;
+  color: #4aba94;
 }
 
 /* Dark mode for ALL headings (not just .text-black)
@@ -1273,3 +1269,42 @@ html.dark .pswp__exif-value {
 html.dark .pswp__exif-item-content {
   color: #fafafa !important;
 }
+
+/* Shared public-site surfaces follow the same cream / teal hierarchy in both
+   color modes; these also cover legacy Tailwind utilities in older templates. */
+html:not(.dark) .bg-white { background-color: var(--color-bg-secondary) !important; }
+html:not(.dark) .bg-white\/95 { background-color: rgb(var(--color-bg-secondary-rgb) / .95) !important; }
+html:not(.dark) .bg-white\/90 { background-color: rgb(var(--color-bg-secondary-rgb) / .9) !important; }
+html:not(.dark) .bg-white\/80 { background-color: rgb(var(--color-bg-secondary-rgb) / .8) !important; }
+html:not(.dark) .bg-white\/98 { background-color: rgb(var(--color-bg-secondary-rgb) / .98) !important; }
+
+html.dark .text-black { color: #ffedb7 !important; }
+html.dark .text-gray-50,
+html.dark .text-gray-100,
+html.dark .text-gray-200,
+html.dark .text-gray-700,
+html.dark .text-gray-800,
+html.dark .text-gray-900 { color: #ffedb7 !important; }
+html.dark .text-gray-300 { color: #d8cba7 !important; }
+html.dark .text-gray-400,
+html.dark .text-gray-500,
+html.dark .text-gray-600 { color: #4aba94 !important; }
+html.dark .text-neutral-400,
+html.dark .text-neutral-500,
+html.dark .text-neutral-600,
+html.dark .text-neutral-700,
+html.dark .text-neutral-800 { color: #ffedb7 !important; }
+
+html.dark .bg-gray-50 { background-color: var(--color-bg-primary) !important; }
+html.dark .bg-gray-100 { background-color: var(--color-bg-secondary) !important; }
+html.dark .bg-gray-200 { background-color: var(--color-bg-tertiary) !important; }
+html.dark .bg-white { background-color: var(--color-bg-secondary) !important; }
+html.dark .bg-white\/80 { background-color: rgb(var(--color-bg-secondary-rgb) / .8) !important; color: #ffedb7 !important; }
+html.dark .bg-black { background-color: #2b3a39 !important; }
+html.dark .border-gray-100,
+html.dark .border-gray-200,
+html.dark .border-gray-300 { border-color: var(--color-border) !important; }
+html.dark [class~="hover:bg-gray-100"]:hover { background-color: var(--color-bg-secondary) !important; }
+html.dark [class~="hover:bg-gray-200"]:hover { background-color: var(--color-bg-tertiary) !important; }
+html.dark [class~="hover:text-gray-700"]:hover,
+html.dark [class~="hover:text-gray-900"]:hover { color: #ffedb7 !important; }

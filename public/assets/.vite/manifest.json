@@ -23,7 +23,7 @@
     "name": "lenis"
   },
   "resources/admin-app.css": {
-    "file": "admin-app-CMyQXTjg.css",
+    "file": "admin-app-CnT2LmHa.css",
     "src": "resources/admin-app.css",
     "isEntry": true
   },
@@ -40,13 +40,24 @@
     ]
   },
   "resources/app.css": {
-    "file": "app-CXV8McJM.css",
+    "file": "app-UGMbEAWb.css",
     "src": "resources/app.css",
+    "isEntry": true
+  },
+  "resources/axel-reference.css": {
+    "file": "axel-reference-C44momNI.css",
+    "src": "resources/axel-reference.css",
     "isEntry": true
   },
   "resources/frontend.css": {
     "file": "frontend-DoILKEbk.css",
     "src": "resources/frontend.css",
+    "isEntry": true
+  },
+  "resources/js/axel-reference.js": {
+    "file": "js/axel-reference-ujmUVlVS.js",
+    "name": "js/axel-reference",
+    "src": "resources/js/axel-reference.js",
     "isEntry": true
   },
   "resources/js/hero.js": {
@@ -59,7 +70,7 @@
     ]
   },
   "resources/js/home-gallery.js": {
-    "file": "js/home-gallery-CbZUQkC9.js",
+    "file": "js/home-gallery-eSZJEjWt.js",
     "name": "js/home-gallery",
     "src": "resources/js/home-gallery.js",
     "isEntry": true,
@@ -89,7 +100,7 @@
     ]
   },
   "resources/js/home.js": {
-    "file": "js/home-ByaLXEiY.js",
+    "file": "js/home-DS5EdR7C.js",
     "name": "js/home",
     "src": "resources/js/home.js",
     "isEntry": true,

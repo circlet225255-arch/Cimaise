@@ -85,6 +85,7 @@ if (document.readyState === 'loading') {
 {% endblock %}
 
 {% block content %}
+{% set selects_profile_title = about_title|default('Nguyễn Đình Việt Thái')|trim %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
   {% include 'frontend/_breadcrumbs.twig' %}
 </div>
@@ -97,17 +98,16 @@ if (document.readyState === 'loading') {
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 md:gap-16 items-start">
       <div class="lg:col-span-2 order-2 lg:order-1">
-        <h1 class="text-4xl md:text-5xl font-semibold tracking-tight">{{ about_title|default(trans('nav.about'))|e }}</h1>
-        {% if about_subtitle %}
-          <p class="mt-3 text-neutral-600">{{ about_subtitle|e }}</p>
+        <h1 class="text-4xl md:text-5xl font-semibold tracking-tight">{{ (about_theme|default('') == 'selects' ? selects_profile_title : about_title|default(trans('nav.about')))|e }}</h1>
+        {% if about_subtitle or about_theme|default('') == 'selects' %}
+          <p class="mt-3 text-neutral-600">{{ about_subtitle|default('Photographer · Việt Nam')|e }}</p>
         {% endif %}
+        {% if about_text or about_theme|default('') == 'selects' %}
         <div class="mt-6 text-lg leading-8">
-          {% if about_text %}
-            <div class="rich-text-content">{{ about_text|safe_html }}</div>
-          {% else %}
-            <p class="text-neutral-600">{{ trans('about.missing_bio') }}</p>
-          {% endif %}
+          {% if about_text %}<div class="rich-text-content">{{ about_text|safe_html }}</div>
+          {% else %}<p class="max-w-2xl">Tôi tìm kiếm những khoảnh khắc chân thật — ánh nhìn, cử chỉ và những kết nối nhỏ làm nên câu chuyện của mỗi người.</p>{% endif %}
         </div>
+        {% endif %}
 
         {% if about_socials|default({}) %}
         <div class="mt-8 flex flex-wrap items-center gap-4">
@@ -129,7 +129,7 @@ if (document.readyState === 'loading') {
         </div>
         {% endif %}
 
-        <div class="mt-12 border border-neutral-200 rounded-lg p-6">
+        <div id="contact" class="mt-12 border border-neutral-200 rounded-lg p-6">
           <h2 class="text-2xl font-semibold">{{ contact_title|default(trans('contact.title'))|e }}</h2>
           <p class="text-sm text-neutral-600 mt-1">{% if contact_intro %}{{ contact_intro|safe_html }}{% elseif about_footer_text %}{{ about_footer_text|safe_html }}{% else %}{{ trans('contact.intro') }}{% endif %}</p>
           <form method="post" action="{{ about_url }}/contact" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">

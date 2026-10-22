@@ -6,6 +6,9 @@ import fs from 'fs'
 function cleanStaleBuilds() {
   return {
     name: 'clean-stale-builds',
+    // Keep production assets and the Vite manifest intact while `npm run dev`
+    // serves source modules for local development.
+    apply: 'build',
     buildStart() {
       const outDir = path.resolve(__dirname, 'public/assets')
       const jsDir = path.resolve(outDir, 'js')
@@ -13,7 +16,7 @@ function cleanStaleBuilds() {
       // (negative lookahead keeps the non-hashed admin-app.css fallback copy)
       if (fs.existsSync(outDir)) {
         for (const file of fs.readdirSync(outDir)) {
-          if (/^(?!admin-app\.css$)(admin|app|frontend)-[A-Za-z0-9_-]+\.(js|css)$/.test(file)) {
+          if (/^(?!admin-app\.css$)(admin|app|frontend|axel-reference)-[A-Za-z0-9_-]+\.(js|css)$/.test(file)) {
             fs.unlinkSync(path.join(outDir, file))
           }
         }
@@ -65,11 +68,13 @@ export default defineConfig({
         'js/home-masonry': path.resolve(__dirname, 'resources/js/home-masonry.js'),
         'js/home-modern': path.resolve(__dirname, 'resources/js/home-modern.js'),
         'js/home-gallery': path.resolve(__dirname, 'resources/js/home-gallery.js'),
+        'js/axel-reference': path.resolve(__dirname, 'resources/js/axel-reference.js'),
         'js/smooth-scroll': path.resolve(__dirname, 'resources/js/smooth-scroll.js'),
         'admin': path.resolve(__dirname, 'resources/admin.js'),
         'admin-app': path.resolve(__dirname, 'resources/admin-app.css'),
         'app': path.resolve(__dirname, 'resources/app.css'),
         'frontend': path.resolve(__dirname, 'resources/frontend.css'),
+        'axel-reference': path.resolve(__dirname, 'resources/axel-reference.css'),
       },
       output: {
         // Use content hash in filenames for cache-busting
@@ -90,6 +95,31 @@ export default defineConfig({
   },
   // Server optimization for development
   server: {
+    host: '127.0.0.1',
+    port: 5173,
+    strictPort: true,
+    // The PHP application remains the backend, while Vite owns the browser
+    // origin during development. Static files and source modules stay on the
+    // Vite server; dynamic routes and protected media are proxied to PHP.
+    proxy: {
+      '/media': {
+        target: 'http://127.0.0.1:8080',
+        changeOrigin: true,
+      },
+      '/fonts/typography.css': {
+        target: 'http://127.0.0.1:8080',
+        changeOrigin: true,
+      },
+      '/site.webmanifest': {
+        target: 'http://127.0.0.1:8080',
+        changeOrigin: true,
+      },
+      // Route all non-static application paths through the PHP router.
+      '^/(?!@vite(?:/|$)|@id(?:/|$)|@fs(?:/|$)|assets(?:/|$)|resources(?:/|$)|node_modules(?:/|$)|fonts(?:/|$)|plugins(?:/|$)|favicon(?:-|\\.|$)|apple-touch-icon|android-chrome-|robots\\.txt$|sw\\.js$|offline\\.html$|.*\\.(?:css|js|map|woff2?|ttf|eot|png|jpe?g|gif|svg|ico|webmanifest)$).*': {
+        target: 'http://127.0.0.1:8080',
+        changeOrigin: true,
+      },
+    },
     hmr: {
       overlay: false,
     },

@@ -16,6 +16,7 @@ class ViteTwigExtension extends AbstractExtension
     private ?array $manifest = null;
     private readonly string $manifestPath;
     private string $basePath;
+    private readonly string $devServerUrl;
 
     public function __construct(string $basePath = '')
     {
@@ -28,6 +29,7 @@ class ViteTwigExtension extends AbstractExtension
         // Manifest is in public/assets/.vite/manifest.json (Vite 5.x default)
         $publicRoot = dirname(__DIR__, 2) . '/public';
         $this->manifestPath = $publicRoot . '/assets/.vite/manifest.json';
+        $this->devServerUrl = rtrim((string) (getenv('VITE_DEV_SERVER_URL') ?: ''), '/');
     }
 
     public function getFunctions(): array
@@ -35,6 +37,7 @@ class ViteTwigExtension extends AbstractExtension
         return [
             new TwigFunction('vite_asset', $this->getAssetPath(...)),
             new TwigFunction('vite_preload', $this->getPreloadTags(...), ['is_safe' => ['html']]),
+            new TwigFunction('vite_dev_client', $this->getDevClientTag(...), ['is_safe' => ['html']]),
         ];
     }
 
@@ -47,6 +50,10 @@ class ViteTwigExtension extends AbstractExtension
      */
     public function getAssetPath(string $entry): string
     {
+        if ($this->devServerUrl !== '') {
+            return $this->devServerUrl . '/resources/' . $this->normalizeEntry($entry);
+        }
+
         $manifest = $this->loadManifest();
 
         if ($manifest === null) {
@@ -98,6 +105,19 @@ class ViteTwigExtension extends AbstractExtension
             }
         }
         return implode("\n    ", $tags);
+    }
+
+    /**
+     * Add Vite's HMR client only when npm run dev owns the current PHP process.
+     */
+    public function getDevClientTag(): string
+    {
+        if ($this->devServerUrl === '') {
+            return '';
+        }
+
+        $src = htmlspecialchars($this->devServerUrl . '/@vite/client', ENT_QUOTES, 'UTF-8');
+        return '<script type="module" src="' . $src . '"></script>';
     }
 
     /**

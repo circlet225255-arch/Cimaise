@@ -21,8 +21,14 @@ abstract class BaseController
 
     protected function getBasePath(): string
     {
-        $basePath = dirname((string) $_SERVER['SCRIPT_NAME']);
-        $basePath = $basePath === '/' ? '' : $basePath;
+        // SCRIPT_NAME is a URL path. Normalize Windows separators before
+        // applying filesystem dirname(), which otherwise returns "\\" for
+        // root-level built-in-server routes such as /about.
+        $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+        $basePath = dirname($scriptName);
+        if ($basePath === '/' || $basePath === '.' || $basePath === '\\') {
+            $basePath = '';
+        }
 
         // Remove /public from the path if present (since document root should be public/)
         if (str_ends_with($basePath, '/public')) {

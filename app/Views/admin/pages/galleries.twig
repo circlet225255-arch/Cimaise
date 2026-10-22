@@ -49,6 +49,13 @@
                     <div class="text-sm text-gray-600">{{ trans('admin.pages.galleries.magazine_split_desc') }}</div>
                   </div>
                 </label>
+                <label class="flex items-start gap-3 p-4 border rounded-lg hover:border-gray-300 cursor-pointer">
+                  <input type="radio" name="page_template" value="axel" class="mt-1" {% if settings['gallery.page_template'] == 'axel' %}checked{% endif %}>
+                  <div>
+                    <div class="font-medium text-gray-900">Axel-inspired horizontal story</div>
+                    <div class="text-sm text-gray-600">A project intro panel with a horizontally browsable photo sequence.</div>
+                  </div>
+                </label>
                 {% if album_page_templates is defined and album_page_templates|length > 0 %}
                   {% for template in album_page_templates %}
                     <label class="flex items-start gap-3 p-4 border rounded-lg hover:border-gray-300 cursor-pointer">
@@ -106,7 +113,8 @@
               'panorama':        { icon: 'fa-panorama',          color: '#4f46e5' },
               'bento':           { icon: 'fa-shapes',            color: '#059669' },
               'polaroid':        { icon: 'fa-image',             color: '#f59e0b' },
-              'index-minimal':   { icon: 'fa-list',              color: '#6b7280' }
+              'index-minimal':   { icon: 'fa-list',              color: '#6b7280' },
+              'axel':            { icon: 'fa-images',            color: '#191919' }
             } %}
             {% set current_listing = settings['galleries.template']|default('classic') %}
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -120,10 +128,10 @@
                     <i class="fas {{ meta.icon }} text-white text-sm"></i>
                   </div>
                   <div>
-                    <span class="font-semibold text-gray-900">{{ trans('admin.pages.galleries.tpl_' ~ key_slug) }}</span>
+                    <span class="font-semibold text-gray-900">{{ slug == 'axel' ? 'Axel-inspired Works Index' : trans('admin.pages.galleries.tpl_' ~ key_slug) }}</span>
                   </div>
                 </div>
-                <p class="text-xs text-gray-600">{{ trans('admin.pages.galleries.tpl_' ~ key_slug ~ '_desc') }}</p>
+                <p class="text-xs text-gray-600">{{ slug == 'axel' ? 'Category-led project index with horizontal image cards and a responsive layout.' : trans('admin.pages.galleries.tpl_' ~ key_slug ~ '_desc') }}</p>
                 <div class="absolute top-2 right-2 listing-template-check {{ current_listing == slug ? '' : 'hidden' }}">
                   <i class="fas fa-check-circle text-black"></i>
                 </div>

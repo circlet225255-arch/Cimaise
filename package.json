@@ -4,7 +4,7 @@
   "license": "GPL-3.0-only",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/dev.mjs",
     "build": "vite build && node scripts/build-fa-subset.mjs",
     "fa-subset": "node scripts/build-fa-subset.mjs",
     "postinstall": "node scripts/copy-vendor.js && node scripts/build-fa-subset.mjs"

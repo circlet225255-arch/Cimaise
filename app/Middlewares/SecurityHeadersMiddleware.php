@@ -29,6 +29,27 @@ class SecurityHeadersMiddleware implements MiddlewareInterface
         $nonce = base64_encode(random_bytes(16));
         self::$nonce = $nonce;
 
+        // Vite's development server is explicitly opt-in from npm run dev.
+        // Keep production CSP unchanged, but allow the local HMR origin and
+        // websocket when the combined development runner is active.
+        $viteDevUrl = trim((string) (getenv('VITE_DEV_SERVER_URL') ?: ($_ENV['VITE_DEV_SERVER_URL'] ?? '')));
+        $viteCspSources = '';
+        $upgradeInsecure = 'upgrade-insecure-requests; ';
+        if ($viteDevUrl !== '') {
+            $viteParts = parse_url($viteDevUrl);
+            if (is_array($viteParts) && isset($viteParts['scheme'], $viteParts['host'])) {
+                $viteHost = $viteParts['host'];
+                if (isset($viteParts['port'])) {
+                    $viteHost .= ':' . $viteParts['port'];
+                }
+                $viteOrigin = $viteParts['scheme'] . '://' . $viteHost;
+                $viteWsScheme = $viteParts['scheme'] === 'https' ? 'wss' : 'ws';
+                $viteCspSources = $viteOrigin . ' ' . $viteWsScheme . '://' . $viteHost;
+                // Do not upgrade http://localhost Vite URLs to https://localhost.
+                $upgradeInsecure = '';
+            }
+        }
+
         // Store nonce in request attribute for use by templates
         $request = $request->withAttribute('csp_nonce', $nonce);
 
@@ -44,12 +65,12 @@ class SecurityHeadersMiddleware implements MiddlewareInterface
         // Admin is behind authentication, so the XSS risk from unsafe-inline is acceptable.
         // Frontend routes: strict nonce-based CSP with external image sources for galleries
         if ($isAdminRoute) {
-            $csp = "upgrade-insecure-requests; default-src 'self'; "
+            $csp = $upgradeInsecure . "default-src 'self'; "
                  . "img-src 'self' data: blob:; "
-                 . "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+                 . "script-src 'self' 'unsafe-inline' 'unsafe-eval' {$viteCspSources}; "
                  . "style-src 'self' 'unsafe-inline'; "
                  . "font-src 'self' data:; "
-                 . "connect-src 'self'; "
+                 . "connect-src 'self' {$viteCspSources}; "
                  . "frame-src 'self'; "
                  . "object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
         } else {
@@ -67,12 +88,12 @@ class SecurityHeadersMiddleware implements MiddlewareInterface
             $gaConnect = 'https://www.google-analytics.com https://*.google-analytics.com '
                 . 'https://*.analytics.google.com https://www.googletagmanager.com';
 
-            $csp = "upgrade-insecure-requests; default-src 'self'; "
+            $csp = $upgradeInsecure . "default-src 'self'; "
                  . "img-src 'self' data: blob: https:; "
-                 . "script-src 'self' 'nonce-{$nonce}' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ {$gaScript}; "
+                 . "script-src 'self' 'nonce-{$nonce}' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ {$gaScript} {$viteCspSources}; "
                  . "style-src 'self' 'unsafe-inline'; "
                  . "font-src 'self' data:; "
-                 . "connect-src 'self' {$gaConnect}; "
+                 . "connect-src 'self' {$gaConnect} {$viteCspSources}; "
                  . "frame-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; "
                  . "object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
         }

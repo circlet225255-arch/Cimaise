@@ -1,0 +1,401 @@
+{% extends "frontend/_layout.twig" %}
+{% import "frontend/_lqip_macros.twig" as lqip %}
+{% import "frontend/_home_photo.twig" as photo %}
+{% import "frontend/_axel_content_macros.twig" as labels %}
+
+{% block styles %}
+{% include 'frontend/_lcp_preload.twig' %}
+{{ lqip.lqip_styles()|raw }}
+{% endblock %}
+
+{% block content %}
+{{ do_action('frontend_home_before', {base_path: base_path}) }}
+{% include 'frontend/home/_website_jsonld.twig' %}
+
+{% set profile_title = about_title|default('Nguyễn Đình Việt Thái')|trim %}
+{% set works_url = base_path ~ '/' ~ (galleries_slug|default('galleries')) %}
+{% set profile_url = about_url starts with '/' ? about_url : '/' ~ about_url %}
+{% set contact_url = profile_url ~ '#contact' %}
+{% set contact_prints = all_images|default([])|slice(0, 24) %}
+{% set profile_topics = home_settings.hero_subtitle|default('Chân dung · Nghi lễ · Đời thường')|trim %}
+{% set profile_summary = about_subtitle|default('')|trim %}
+{% if profile_summary == '' %}{% set profile_summary = 'Tôi tìm kiếm những khoảnh khắc chân thật — ánh nhìn, cử chỉ và những kết nối nhỏ làm nên câu chuyện của mỗi người.' %}{% endif %}
+{% set hero_image = all_images|default([])|first %}
+{% set hero_backdrop = all_images|default([])|slice(1, 1)|first|default(hero_image) %}
+{% set concept_backdrop = all_images|default([])|slice(2, 1)|first|default(hero_backdrop) %}
+{% set mood_backdrop = all_images|default([])|slice(14, 1)|first|default(concept_backdrop) %}
+{% set closing_backdrop = all_images|default([])|last|default(hero_backdrop) %}
+
+<div class="selects-home coppola-home dream-beats-home" data-selects-home>
+  <div class="dream-beats-opening">
+    <section class="coppola-hero dream-style-carousel" aria-labelledby="my-style-title" aria-roledescription="carousel" aria-describedby="my-style-carousel-help" tabindex="0">
+      {% set my_style_slides = [
+        'frame-01.webp',
+        'frame-02.webp',
+        'frame-03.webp',
+        'frame-04.webp',
+        'frame-05.webp',
+        'frame-06.webp',
+        'frame-07.webp'
+      ] %}
+      <div class="coppola-hero__backdrop dream-style-carousel__slides" data-style-carousel aria-hidden="true">
+        {% for slide in my_style_slides %}
+        <div class="dream-style-carousel__slide{% if loop.first %} is-active{% endif %}" data-style-slide>
+          <img src="{{ base_path }}/assets/my-style-slides/{{ slide|e('html_attr') }}" alt="" {% if loop.first %}fetchpriority="high"{% else %}fetchpriority="low"{% endif %} loading="eager" decoding="async">
+        </div>
+        {% endfor %}
+      </div>
+      <div class="coppola-hero__shade" aria-hidden="true"></div>
+      <div class="dream-hero-copy">
+        <p class="coppola-eyebrow">Photographer</p>
+        <h1 id="my-style-title">MY STYLE</h1>
+        <p class="dream-hero-credit">Thai Nguyen Dinh Viet</p>
+      </div>
+      <p id="my-style-carousel-help" class="dream-style-carousel__help">Ảnh nền tự chuyển mỗi 3 giây. Cuộn hoặc vuốt trong khung để đổi ảnh; dùng phím mũi tên khi khung được chọn.</p>
+    </section>
+
+    <section class="coppola-synopsis" aria-labelledby="dream-concept-title">
+      <div class="dream-card__backdrop" aria-hidden="true">
+        {% if concept_backdrop %}{{ photo.picture(concept_backdrop, base_path, '(min-width: 768px) 50vw, 100vw', 1, 3, '', '') }}{% endif %}
+      </div>
+      <div class="dream-card__shade" aria-hidden="true"></div>
+      <span class="dream-director">{{ profile_title|e }}</span>
+      <h2 id="dream-concept-title">CONCEPT</h2>
+      <p class="dream-concept-copy">A middle-aged Black man lies on the floor, headphones on, searching for the perfect melody on his phone, his face reflecting deep weariness and melancholy. We cut back in time where he is editing a project in joy; after submitting, he receives a client's request to change the music, which sends him into a reflective mood about his career choices.</p>
+      <div class="dream-genre">
+        <span class="dream-rule" aria-hidden="true"></span>
+        <strong>GENRE</strong>
+        <span>Inspirational,<br>Dramatic, Lifestyle</span>
+      </div>
+      <span class="dream-folio">DREAM BEATS | PAGE 01</span>
+    </section>
+  </div>
+
+  <section class="dream-beats-story dream-camera-story" aria-labelledby="dream-style-title">
+    <div class="dream-card__backdrop dream-story-backdrop" aria-hidden="true">
+      <img src="{{ base_path }}/assets/profile-camera-portrait.jpeg" alt="" loading="lazy" decoding="async">
+    </div>
+    <div class="dream-card__shade" aria-hidden="true"></div>
+    <h2 id="dream-style-title" class="dream-photographer-title">PHOTOGRAPHER</h2>
+    <span class="dream-photographer-name">Thai Nguyen Dinh Viet</span>
+    <h3 class="dream-about-heading">About me</h3>
+    <div class="dream-about-socials" aria-label="Social media">
+      <a href="https://www.facebook.com/nguyen.thai.945014" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h-2.2C10.4 3 9 4.5 9 7v2H7v3h2v9h3v-9h2.4l.4-3H12V7.3c0-.9.2-1.3 1.2-1.3H15z"/></svg>
+      </a>
+      <a href="https://www.instagram.com/_thainguynnn_/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.25" y="3.25" width="17.5" height="17.5" rx="5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/><circle cx="17.65" cy="6.55" r="1.15" fill="currentColor"/></svg>
+      </a>
+    </div>
+    <div class="dream-about-contact">
+      <a href="mailto:hungnguyendinhviet@gmail.com">hungnguyendinhviet@gmail.com</a>
+      <a href="tel:0969539313">0969539313</a>
+    </div>
+    <h3 class="dream-my-story-heading">My Story</h3>
+    <span class="dream-photographer-tagline">A soul trapped by film 🎞️</span>
+    <span class="dream-folio">{{ profile_title|upper|e }} | PAGE 02</span>
+  </section>
+
+  <div class="dream-beats-gallery">
+    <section class="dream-beats-collage" aria-label="Film stills collage">
+      <div class="dream-collage-grid">
+        {% for image in contact_prints|slice(0, 9) %}
+          <a class="dream-collage-frame" data-dream-reveal style="--dream-reveal-delay: {{ (loop.index0 % 3) * 70 }}ms" href="{{ base_path }}/album/{{ image.album_slug|e('html_attr') }}" aria-label="Mở bộ ảnh {{ labels.album_title(image.album_slug|default(''), image.album_title|default(''))|e('html_attr') }}">
+            {{ photo.picture(image, base_path, '(min-width: 768px) 17vw, 32vw', loop.index0 + 4, 5, '', '') }}
+            <span>{{ labels.album_title(image.album_slug|default(''), image.album_title|default(''))|e }}</span>
+          </a>
+        {% else %}
+          <div class="dream-collage-empty">Film stills</div>
+        {% endfor %}
+      </div>
+      <span class="dream-director">{{ profile_title|e }}</span>
+      <div class="dream-collage-footer">
+        <span class="dream-folio">DREAM BEATS | PAGE 04</span>
+        <a href="{{ works_url|e('html_attr') }}">All albums ↗</a>
+      </div>
+
+      {% if contact_prints|length > 9 %}
+      <details class="dream-film-archive" id="film-archive">
+        <summary>View all {{ contact_prints|length }} frames · Film rolls <span aria-hidden="true">＋</span></summary>
+        <div class="dream-film-archive__content">
+          {% for strip in contact_prints|batch(8) %}
+          <div class="selects-roll" data-roll-index="{{ loop.index0 }}">
+            <div class="selects-roll-label cs-mono">
+              <span class="selects-roll-title">Film roll 0{{ loop.index }} · 35 mm</span>
+              <span class="selects-roll-progress" aria-hidden="true">01 / {{ '%02d'|format(strip|length) }}</span>
+              <span class="selects-roll-hint">Swipe or scroll <span aria-hidden="true">↔</span></span>
+            </div>
+            <div class="selects-film" role="group" aria-label="Film roll {{ loop.index }}">
+              <div class="selects-film-edge selects-film-edge--top cs-mono" aria-hidden="true"><span>DREAM BEATS · 35 MM · ISO 400</span><span>SAFETY FILM</span></div>
+              <div class="selects-frames" tabindex="0" aria-label="Scroll horizontally to view more photos">
+                {% for frame in strip %}
+                  {% set global_index = (loop.parent.loop.index0 * 8) + loop.index0 %}
+                  {% set ar = (frame.width|default(800) / max(1, frame.height|default(600)))|round(3) %}
+                  <a class="selects-frame" style="--frame-ar: {{ ar }}" href="{{ base_path }}/album/{{ frame.album_slug|e('html_attr') }}" aria-label="Mở bộ ảnh {{ labels.album_title(frame.album_slug|default(''), frame.album_title|default(''))|e('html_attr') }}">
+                    <span class="selects-frame-number cs-mono">{{ '%02d'|format(global_index + 1) }}</span>
+                    {{ photo.picture(frame, base_path, '(min-width: 768px) 20vw, 42vw', global_index + 10, 5, '', '') }}
+                    <span class="selects-frame-caption">{{ labels.album_title(frame.album_slug|default(''), frame.album_title|default(''))|e }}</span>
+                  </a>
+                {% endfor %}
+              </div>
+              <div class="selects-film-edge selects-film-edge--bottom cs-mono" aria-hidden="true"><span>CONTACT PRINTS · VIỆT NAM</span><span>0{{ loop.index }}</span></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </details>
+      {% endif %}
+    </section>
+
+    <a class="dream-beats-mood" href="{{ works_url|e('html_attr') }}" aria-label="Xem toàn bộ album">
+      <div class="dream-card__backdrop" aria-hidden="true">
+        <img src="{{ base_path }}/assets/moodboard-n.jpg" alt="" loading="lazy" decoding="async">
+      </div>
+      <div class="dream-card__shade" aria-hidden="true"></div>
+      <span class="dream-story-rule dream-mood-rule" aria-hidden="true"><i></i></span>
+      <h2>MOOD &amp; TONE</h2>
+      <span class="dream-folio">DREAM BEATS | PAGE 03</span>
+    </a>
+  </div>
+
+  <section class="dream-beats-my-work" aria-labelledby="dream-my-work-title">
+    <div class="dream-work-heading">
+      <h2 id="dream-my-work-title">My work</h2>
+      <a href="{{ works_url|e('html_attr') }}">All albums <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="dream-work-grid">
+      {% set work_categories = [
+        {'label': 'Wedding', 'slug': 'nghi-le-ngay-vui'},
+        {'label': 'Concept', 'slug': 'chan-dung-anh-nhin-cu-chi'},
+        {'label': 'Event', 'slug': 'khong-gian-anh-den-va-huong-vi'}
+      ] %}
+      {% for work in work_categories %}
+        {% set feature_image = all_images|default([])|filter(image => image.album_slug == work.slug)|first %}
+        {% set work_album = albums|default([])|filter(album => album.slug == work.slug)|first %}
+        {% if feature_image and work_album %}
+          {% set is_wedding_card = work.slug == 'nghi-le-ngay-vui' %}
+          {% set is_concept_card = work.slug == 'chan-dung-anh-nhin-cu-chi' %}
+          <a class="dream-work-card" data-dream-reveal style="--dream-reveal-delay: {{ loop.index0 * 90 }}ms" href="{{ base_path }}/album/{{ work.slug|e('html_attr') }}" aria-label="Mở bộ ảnh {{ work.label|e('html_attr') }}">
+            <div class="dream-work-card__image" style="--dream-work-image-position: center center;{% if not is_concept_card and not is_wedding_card %} view-transition-name: album-{{ work.slug|replace({'-': '_'})|e('html_attr') }};{% endif %}">
+              {% if is_concept_card %}
+                <img src="{{ base_path }}/assets/concept-img-4030-portrait.jpg" alt="" loading="lazy" decoding="async">
+              {% elseif is_wedding_card %}
+                <img src="{{ base_path }}/assets/wedding-000002.jpg" alt="" loading="lazy" decoding="async">
+              {% else %}
+                {{ photo.picture(feature_image, base_path, '(min-width: 1024px) 31vw, (min-width: 768px) 46vw, 94vw', loop.index0 + 25, 5, '', '') }}
+              {% endif %}
+            </div>
+            <div class="dream-work-card__shade" aria-hidden="true"></div>
+            <span class="dream-work-card__index cs-mono">{{ '%02d'|format(loop.index) }}</span>
+            <div class="dream-work-card__info">
+              <h3>{{ work.label|e }}</h3>
+            </div>
+            <span class="dream-work-card__arrow" aria-hidden="true">↗</span>
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="dream-beats-thankyou" aria-labelledby="dream-thankyou-title">
+    <div class="dream-card__backdrop" aria-hidden="true">
+      <img src="{{ base_path }}/assets/contact-forest.jpeg" alt="" loading="lazy" decoding="async">
+    </div>
+    <div class="dream-card__shade" aria-hidden="true"></div>
+    <h2 id="dream-thankyou-title">CONTACT</h2>
+    <p>For any questions or concerns please email:
+      {% if contact_email|default('')|trim %}<a href="mailto:{{ contact_email|e('html_attr') }}">{{ contact_email|e }}</a>
+      {% else %}<a href="{{ contact_url|e('html_attr') }}">{{ profile_title|e }}</a>{% endif %}
+    </p>
+  </section>
+</div>
+
+{{ do_action('frontend_home_after', {base_path: base_path}) }}
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce() }}">{{ lqip.lqip_script()|raw }}</script>
+<script nonce="{{ csp_nonce() }}">
+function initDreamSelectsHome() {
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var styleCarousel = document.querySelector('.dream-style-carousel');
+  var styleSlidesRoot = styleCarousel && styleCarousel.querySelector('[data-style-carousel]');
+  var styleSlides = styleSlidesRoot ? Array.from(styleSlidesRoot.querySelectorAll('[data-style-slide]')) : [];
+  if (styleCarousel && styleSlides.length > 1) {
+    var currentStyleSlide = 0;
+    var styleAutoplayTimer = 0;
+    var lastStyleWheelAt = 0;
+
+    function scheduleStyleAutoplay() {
+      window.clearTimeout(styleAutoplayTimer);
+      if (reduceMotion || document.hidden) return;
+      styleAutoplayTimer = window.setTimeout(function () {
+        setStyleSlide(currentStyleSlide + 1);
+      }, 3000);
+    }
+
+    function setStyleSlide(index) {
+      currentStyleSlide = (index + styleSlides.length) % styleSlides.length;
+      styleSlides.forEach(function (slide, slideIndex) {
+        slide.classList.toggle('is-active', slideIndex === currentStyleSlide);
+      });
+      scheduleStyleAutoplay();
+    }
+
+    styleCarousel.addEventListener('wheel', function (event) {
+      if (event.ctrlKey) return;
+      var delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      var now = window.performance.now();
+      if (Math.abs(delta) < 8 || now - lastStyleWheelAt < 700) return;
+      lastStyleWheelAt = now;
+      setStyleSlide(currentStyleSlide + (delta > 0 ? 1 : -1));
+    }, { passive: true });
+
+    styleCarousel.addEventListener('keydown', function (event) {
+      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+        event.preventDefault();
+        setStyleSlide(currentStyleSlide + 1);
+      } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        setStyleSlide(currentStyleSlide - 1);
+      }
+    });
+
+    var styleTouchStartY = null;
+    styleCarousel.addEventListener('touchstart', function (event) {
+      if (event.touches.length === 1) styleTouchStartY = event.touches[0].clientY;
+    }, { passive: true });
+    styleCarousel.addEventListener('touchend', function (event) {
+      if (styleTouchStartY === null || !event.changedTouches.length) return;
+      var swipeDistance = event.changedTouches[0].clientY - styleTouchStartY;
+      styleTouchStartY = null;
+      if (Math.abs(swipeDistance) < 42) return;
+      setStyleSlide(currentStyleSlide + (swipeDistance < 0 ? 1 : -1));
+    }, { passive: true });
+
+    document.addEventListener('visibilitychange', scheduleStyleAutoplay);
+    scheduleStyleAutoplay();
+  }
+
+  document.querySelectorAll('.selects-frames').forEach(function (scroller) {
+    var roll = scroller.closest('.selects-roll');
+    var progress = roll && roll.querySelector('.selects-roll-progress');
+    var frames = Array.from(scroller.querySelectorAll('.selects-frame'));
+    var progressFrame = 0;
+
+    function updateProgress() {
+      if (!progress || !frames.length) return;
+      var marker = scroller.scrollLeft + 2;
+      var visibleIndex = frames.findIndex(function (frame) {
+        return frame.offsetLeft + frame.offsetWidth > marker;
+      });
+      var nextFrame = Math.max(0, visibleIndex);
+      if (nextFrame === progressFrame && progress.textContent) return;
+      progressFrame = nextFrame;
+      progress.textContent = String(nextFrame + 1).padStart(2, '0') + ' / ' + String(frames.length).padStart(2, '0');
+    }
+
+    scroller.addEventListener('scroll', updateProgress, { passive: true });
+    updateProgress();
+
+    scroller.addEventListener('wheel', function (event) {
+      if (event.ctrlKey) return;
+      var scale = event.deltaMode === 1 ? 16 : (event.deltaMode === 2 ? scroller.clientWidth : 1);
+      var deltaX = event.deltaX * scale;
+      var deltaY = event.deltaY * scale;
+      var delta = Math.abs(deltaX) > Math.abs(deltaY) ? deltaX : deltaY;
+      var maxScroll = scroller.scrollWidth - scroller.clientWidth;
+      if (maxScroll <= 1 || delta === 0) return;
+      var current = Math.max(0, scroller.scrollLeft);
+      if ((delta < 0 && current <= 0) || (delta > 0 && current >= maxScroll - 1)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      scroller.scrollLeft = Math.max(0, Math.min(maxScroll, current + delta));
+    }, { passive: false });
+
+    var pointerStartX = 0;
+    var scrollStartX = 0;
+    var pointerDown = false;
+    var didDrag = false;
+
+    scroller.addEventListener('pointerdown', function (event) {
+      if (event.pointerType !== 'mouse' || event.button !== 0) return;
+      pointerDown = true;
+      didDrag = false;
+      pointerStartX = event.clientX;
+      scrollStartX = scroller.scrollLeft;
+    });
+
+    scroller.addEventListener('pointermove', function (event) {
+      if (!pointerDown) return;
+      var distance = event.clientX - pointerStartX;
+      if (!didDrag && Math.abs(distance) > 5) {
+        didDrag = true;
+        scroller.classList.add('is-dragging');
+      }
+      if (didDrag) {
+        event.preventDefault();
+        scroller.scrollLeft = scrollStartX - distance;
+      }
+    });
+
+    function endDrag() {
+      if (!pointerDown) return;
+      pointerDown = false;
+      scroller.classList.remove('is-dragging');
+      if (didDrag) {
+        window.setTimeout(function () { didDrag = false; }, 0);
+      }
+    }
+
+    scroller.addEventListener('pointerup', endDrag);
+    scroller.addEventListener('pointercancel', endDrag);
+    scroller.addEventListener('click', function (event) {
+      if (!didDrag) return;
+      event.preventDefault();
+      event.stopPropagation();
+      didDrag = false;
+    }, true);
+
+    scroller.addEventListener('keydown', function (event) {
+      if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+        event.preventDefault();
+        scroller.scrollBy({ left: event.key === 'ArrowRight' ? 180 : -180, behavior: reduceMotion ? 'auto' : 'smooth' });
+      } else if (event.key === 'Home' || event.key === 'End') {
+        event.preventDefault();
+        scroller.scrollTo({ left: event.key === 'Home' ? 0 : scroller.scrollWidth, behavior: reduceMotion ? 'auto' : 'smooth' });
+      }
+    });
+  });
+
+  var revealItems = Array.from(document.querySelectorAll('.dream-beats-home [data-dream-reveal]'));
+  if (revealItems.length && !reduceMotion && 'IntersectionObserver' in window) {
+    var revealRoot = document.querySelector('.dream-beats-home');
+    if (revealRoot) revealRoot.classList.add('dream-reveal-ready');
+    var revealObserver = new IntersectionObserver(function (entries, observer) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-dream-revealed');
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.01, rootMargin: '0px 0px 120px 0px' });
+    revealItems.forEach(function (item) { revealObserver.observe(item); });
+    window.requestAnimationFrame(function () {
+      revealItems.forEach(function (item) {
+        var bounds = item.getBoundingClientRect();
+        if (bounds.top < window.innerHeight && bounds.bottom > 0) {
+          item.classList.add('is-dream-revealed');
+          revealObserver.unobserve(item);
+        }
+      });
+    });
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initDreamSelectsHome, { once: true });
+} else {
+  initDreamSelectsHome();
+}
+</script>
+{% endblock %}

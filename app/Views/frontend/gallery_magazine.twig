@@ -224,11 +224,12 @@
     <div class="pointer-events-none absolute inset-x-0 bottom-0 h-28 z-20 masonry-veil-bottom"></div>
 
     {% set style = template_settings.style|default({hover_fade: true}) %}
+    {% set album_transition_name = 'album-' ~ (album.slug|default('album')|replace({'-': '_'})) %}
     <div id="images-gallery" class="relative pswp-gallery" data-hover-fade="{{ style.hover_fade is not defined or style.hover_fade ? '1' : '0' }}">
       <div class="m-mobile-wrap">
         <div class="m-mobile">
           {% for image in images %}
-            <div class="m-cell">{{ G.item(image, true, base_path, album) }}</div>
+            <div class="m-cell"{% if loop.first %} style="view-transition-name: {{ album_transition_name|e('html_attr') }}"{% endif %}>{{ G.item(image, true, base_path, album) }}</div>
           {% endfor %}
         </div>
       </div>
@@ -242,7 +243,7 @@
           <div class="m-col" data-direction="{{ dir }}" style="--m-duration: {{ dur }}; --m-delay: 0s;">
             <div class="m-track">
               {% for image in col %}
-                <div class="m-cell">{{ G.item(image, true, base_path, album) }}</div>
+                <div class="m-cell"{% if idx == 0 and loop.first %} style="view-transition-name: {{ album_transition_name|e('html_attr') }}"{% endif %}>{{ G.item(image, true, base_path, album) }}</div>
               {% endfor %}
               {% for image in col %}
                 <div class="m-cell">{{ G.item(image, true, base_path, album, 'pswp-is-duplicate') }}</div>

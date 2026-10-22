@@ -29,6 +29,7 @@ if ($isNoDbCommand) {
     
     $cli->add(new App\Tasks\DbTestCommand($container['db']));
     $cli->add(new App\Tasks\SeedDemoAlbumsCommand($container['db']));
+    $cli->add(new App\Tasks\SeedPortfolioSamplesCommand($container['db']));
     $cli->add(new App\Tasks\SeedCommand($container['db'], __DIR__ . '/../database/seeds'));
     $cli->add(new App\Tasks\UserCreateCommand($container['db']));
     $cli->add(new App\Tasks\UserUpdateCommand($container['db']));

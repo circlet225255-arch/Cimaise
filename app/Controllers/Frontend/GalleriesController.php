@@ -34,6 +34,7 @@ class GalleriesController extends BaseController
         'bento'           => 'frontend/galleries_bento.twig',
         'polaroid'        => 'frontend/galleries_polaroid.twig',
         'index-minimal'   => 'frontend/galleries_index_minimal.twig',
+        'axel'            => 'frontend/galleries_axel.twig',
     ];
 
     public function __construct(private readonly Database $db, private readonly Twig $view)
@@ -139,6 +140,8 @@ class GalleriesController extends BaseController
         // Prepare data for rendering and caching
         $renderData = [
             'albums' => $albums,
+            'galleries_template' => $pageTemplateSlug,
+            'galleries_slug' => (string) ((new SettingsService($this->db))->get('galleries.slug', 'galleries') ?? 'galleries'),
             'filter_settings' => $filterSettings,
             'page_texts' => $pageTexts,
             'filter_options' => $filterOptions,

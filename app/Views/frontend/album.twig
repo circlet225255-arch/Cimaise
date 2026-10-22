@@ -5,6 +5,7 @@
 {% set needs_masonry = template_settings.layout|default('grid') == 'masonry' or (available_templates|default([])|length > 0) %}
 
 {% block content %}
+{% set visible_album_categories = album.categories|default([])|filter(category => category.name|default('')|trim != '') %}
 {# NSFW Age Gate - shown if album is NSFW and user hasn't confirmed (skip for admins) #}
 {% if album.is_nsfw and not is_admin %}
 <div id="nsfw-gate" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 hidden"
@@ -256,19 +257,27 @@ document.addEventListener('click', function(event) {
     <!-- Content Overlay -->
     <div class="relative z-20 text-center text-white max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Breadcrumbs -->
+        {% if album.category_name|default('')|trim or album.title|default('')|trim %}
         <nav class="mb-6" aria-label="Breadcrumb" data-gsap="breadcrumb">
             <ol class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm opacity-80">
                 <li><a href="{{ base_path }}/" class="hover:text-white transition-colors">{{ trans('nav.home') }}</a></li>
+                {% if album.category_name|default('')|trim %}
                 <li><span class="mx-2">/</span></li>
                 <li><a href="{{ base_path }}/category/{{ album.category_slug }}" class="hover:text-white transition-colors">{{ album.category_name|e }}</a></li>
+                {% endif %}
+                {% if album.title|default('')|trim %}
                 <li><span class="mx-2">/</span></li>
                 <li class="text-white font-medium" aria-current="page">{{ album.title|e }}</li>
+                {% endif %}
             </ol>
         </nav>
+        {% endif %}
 
+        {% if album.title|default('')|trim %}
         <h1 class="text-4xl md:text-6xl font-light mb-6" data-gsap="hero-title">
             {{ album.title|e }}
         </h1>
+        {% endif %}
 
         {% if album.excerpt %}
         <p class="text-xl md:text-2xl mb-8 opacity-90 leading-relaxed" data-gsap="hero-excerpt">
@@ -278,12 +287,12 @@ document.addEventListener('click', function(event) {
 
         <!-- Categories, Tags, Location in hero -->
         <div class="flex flex-wrap justify-center gap-6 text-sm mb-6 opacity-80" data-gsap="hero-meta">
-            {% if album.categories is defined and album.categories|length > 0 %}
+            {% if visible_album_categories|length > 0 %}
             <div class="flex items-center">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                 </svg>
-                {% for cat in album.categories %}
+                {% for cat in visible_album_categories %}
                     <a href="{{ base_path }}/category/{{ cat.slug }}" class="hover:text-white transition-colors mr-2">{{ cat.name }}</a>{% if not loop.last %}<span class="text-gray-300">•</span>{% endif %}
                 {% endfor %}
             </div>
@@ -335,27 +344,37 @@ document.addEventListener('click', function(event) {
 <!-- Template Album 1 - Classic Header -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Breadcrumbs -->
+    {% if album.category_name|default('')|trim or album.title|default('')|trim %}
     <nav class="mb-6" aria-label="Breadcrumb">
         <ol class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600">
             <li><a href="{{ base_path }}/" class="hover:text-black transition-colors">{{ trans('nav.home') }}</a></li>
+            {% if album.category_name|default('')|trim %}
             <li><span class="mx-2 text-gray-400">/</span></li>
             <li><a href="{{ base_path }}/category/{{ album.category_slug }}" class="hover:text-black transition-colors">{{ album.category_name|e }}</a></li>
+            {% endif %}
+            {% if album.title|default('')|trim %}
             <li><span class="mx-2 text-gray-400">/</span></li>
             <li class="text-gray-900 font-medium" aria-current="page">{{ album.title|e }}</li>
+            {% endif %}
         </ol>
     </nav>
+    {% endif %}
     
     <!-- Album header -->
     <div class="max-w-4xl mx-auto text-center pb-12">
+        {% if album.category_name|default('')|trim %}
         <div class="mb-4" data-gsap="category">
             <a href="{{ base_path }}/category/{{ album.category_slug }}" class="text-sm text-neutral-600 hover:text-black transition-colors">
                 {{ album.category_name|e }}
             </a>
         </div>
+        {% endif %}
 
+        {% if album.title|default('')|trim %}
         <h1 class="text-3xl md:text-4xl font-light text-black mb-6" data-gsap="title">
             {{ album.title|e }}
         </h1>
+        {% endif %}
 
         {% if album.excerpt %}
         <p class="text-lg text-neutral-600 leading-relaxed mb-6" data-gsap="excerpt">
@@ -985,7 +1004,9 @@ document.addEventListener('click', function(event) {
 {% if related_albums|length > 0 %}
 <section class="border-t border-neutral-200 mt-16 pt-16" data-gsap="related-section">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% if album.category_name|default('')|trim %}
         <h2 class="text-2xl font-light text-center mb-12" data-gsap="related-title">{{ trans('album.more_from', {category: album.category_name}) }}</h2>
+        {% endif %}
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" data-gsap="related-grid">
             {% for related in related_albums %}

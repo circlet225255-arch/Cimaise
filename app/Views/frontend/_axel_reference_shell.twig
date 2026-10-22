@@ -1,0 +1,63 @@
+{% set _axref_profile_url = about_url starts with '/' ? about_url : '/' ~ about_url %}
+{% set _axref_works_url = base_path ~ '/' ~ (galleries_slug|default('galleries')) %}
+{% set _axref_home = home_settings.template|default('') == 'axel' %}
+{% set _axref_works = galleries_template|default('') == 'axel' %}
+{% set _axref_about = about_theme|default('') == 'axel' %}
+{% set _axref_album = album_page_template|default('') == 'axel' %}
+
+{% if _axref_home %}
+<div class="az-home-ticker" aria-hidden="true">
+  <div class="az-home-ticker__track">
+    <span>NGUYỄN ĐÌNH VIỆT THÁI · CHÂN DUNG · NGHI LỄ · ĐỜI THƯỜNG · </span>
+    <span>NGUYỄN ĐÌNH VIỆT THÁI · CHÂN DUNG · NGHI LỄ · ĐỜI THƯỜNG · </span>
+  </div>
+</div>
+{% endif %}
+
+<header class="axref-header{% if _axref_album %} axref-header--album{% endif %}" data-axref-header>
+  <a class="axref-header__brand" href="{{ base_path }}/" aria-label="{{ site_title|default('Trang chủ')|e }} — Trang chủ">
+    {% if logo_type|default('') == 'image' and site_logo|default('') %}<img src="{{ base_path ~ site_logo }}" alt="{{ site_title|default('Portfolio')|e }}">{% else %}<span>{{ site_title|default('Việt Thái')|e }}</span>{% endif %}
+  </a>
+  <nav class="axref-header__links" aria-label="Điều hướng chính">
+    <a href="{{ _axref_works_url|e('html_attr') }}"{% if _axref_works %} aria-current="page"{% endif %}>Tác phẩm</a>
+    <a href="{{ _axref_profile_url|e('html_attr') }}"{% if _axref_about %} aria-current="page"{% endif %}>Giới thiệu</a>
+    <button type="button" class="axref-menu-toggle" id="axref-menu-toggle" aria-expanded="false" aria-controls="axref-menu" data-axref-menu-open>Menu <span aria-hidden="true">+</span></button>
+  </nav>
+</header>
+
+<div class="axref-menu" id="axref-menu" aria-hidden="true" inert data-axref-menu>
+  <div class="axref-menu__top"><span>Chọn một lối xem</span><button type="button" data-axref-menu-close aria-label="Đóng menu">Đóng <span aria-hidden="true">×</span></button></div>
+  <nav class="axref-menu__cards" aria-label="Các trang">
+    <a class="axref-menu-card" href="{{ base_path }}/">
+      <span class="axref-menu-card__index">01 / TRANG CHỦ</span><span class="axref-menu-card__title">Việt Thái</span><span class="axref-menu-card__note">Hồ sơ nhiếp ảnh</span><i aria-hidden="true">↗</i>
+    </a>
+    <a class="axref-menu-card" href="{{ _axref_works_url|e('html_attr') }}">
+      <span class="axref-menu-card__index">02 / LƯU TRỮ</span><span class="axref-menu-card__title">Tác phẩm</span><span class="axref-menu-card__note">Các bộ ảnh</span><i aria-hidden="true">↗</i>
+    </a>
+    <a class="axref-menu-card" href="{{ _axref_profile_url|e('html_attr') }}">
+      <span class="axref-menu-card__index">03 / KẾT NỐI</span><span class="axref-menu-card__title">Giới thiệu</span><span class="axref-menu-card__note">Tác giả & liên hệ</span><i aria-hidden="true">↗</i>
+    </a>
+  </nav>
+  <div class="axref-menu__bottom"><span>{{ site_title|default('Nguyễn Đình Việt Thái')|e }}</span><a href="{{ (_axref_profile_url ~ '#contact')|e('html_attr') }}">Bắt đầu một câu chuyện <b aria-hidden="true">↗</b></a></div>
+</div>
+
+{% if _axref_home %}
+<aside class="axref-rail axref-rail--home" aria-label="Tiến độ trang chủ" data-axref-rail>
+  <span class="axref-rail__count" data-axref-count>01 / 05</span>
+  <span class="axref-rail__current" data-axref-current>Hero</span>
+  <nav aria-label="Các chương trang chủ">
+    <a href="#chapter-01" class="is-active" aria-label="Chapter 1: Hero" data-axref-step="0"><i></i></a>
+    <a href="#chapter-02" aria-label="Chapter 2: About me" data-axref-step="1"><i></i></a>
+    <a href="#chapter-03" aria-label="Chapter 3: My story" data-axref-step="2"><i></i></a>
+    <a href="#chapter-04" aria-label="Chapter 4: My job" data-axref-step="3"><i></i></a>
+    <a href="#chapter-05" aria-label="Chapter 5: Contact me" data-axref-step="4"><i></i></a>
+  </nav>
+</aside>
+{% else %}
+<aside class="axref-rail axref-rail--route{% if _axref_album %} axref-rail--album{% endif %}" aria-hidden="true" data-axref-route-rail>
+  <span class="axref-rail__count" data-axref-route-count>{% if _axref_album %}01 / {{ '%02d'|format(images|default([])|length) }}{% elseif _axref_works %}01 / {{ '%02d'|format(albums|default([])|length) }}{% else %}01 / 03{% endif %}</span>
+  <span class="axref-rail__current">{% if _axref_album %}Khung hình{% elseif _axref_works %}Tác phẩm{% else %}Giới thiệu{% endif %}</span>
+</aside>
+{% endif %}
+
+<a class="axref-stamp" href="{{ base_path }}/" aria-label="{{ site_title|default('Trang chủ')|e }} — về đầu trang"><span>ẢNH</span><b>{{ site_title|default('VT')|slice(0, 2)|upper|e }}</b></a>

@@ -207,10 +207,15 @@
   </div>
 
   {# Text content area #}
+  {% set card_title = album.title|default('')|trim %}
+  {% set card_excerpt = album.excerpt|default('')|trim %}
+  {% if card_title or card_excerpt or album.tags or album.shoot_date %}
   <div class="pt-3 pb-2">
+    {% if card_title %}
     <h3 class="text-lg font-medium text-black group-hover:text-neutral-700 transition-colors">
-      <a href="{{ album_url }}" class="hover:underline" title="{{ seo_title|e('html_attr') }}">{{ album.title|e }}</a>
+      <a href="{{ album_url }}" class="hover:underline" title="{{ seo_title|e('html_attr') }}">{{ card_title|e }}</a>
     </h3>
+    {% endif %}
 
     <div class="flex flex-wrap items-center gap-1 mt-1 text-sm text-neutral-600">
       {% if album.tags %}
@@ -224,10 +229,11 @@
       {% endif %}
     </div>
 
-    {% if album.excerpt %}
+    {% if card_excerpt %}
     <p class="mt-2 text-sm text-neutral-600 line-clamp-2">
-      {{ album.excerpt|e }}
+      {{ card_excerpt|e }}
     </p>
     {% endif %}
   </div>
+  {% endif %}
 </article>

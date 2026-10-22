@@ -111,6 +111,9 @@ class GalleryController extends BaseController
     public function gallery(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
+        if (($params['mode'] ?? '') === 'playground') {
+            return $this->playground($request, $response);
+        }
         $albumParam = $params['album'] ?? null; // slug or id
         $templateId = isset($params['template']) ? (int)$params['template'] : null;
 
@@ -696,6 +699,39 @@ class GalleryController extends BaseController
         }
 
         return $rendered;
+    }
+
+    /**
+     * Standalone, accessible photo playground used by the Axel-inspired theme.
+     * Photos are loaded from the same access-scoped home gallery API as the
+     * homepage, so password-protected images are never exposed here.
+     */
+    private function playground(Request $request, Response $response): Response
+    {
+        $settings = new SettingsService($this->db);
+        $siteTitle = (string) ($settings->get('site.title', 'Portfolio') ?? 'Portfolio');
+        $roots = BaseUrlService::canonicalRoots(
+            $request,
+            $this->basePath,
+            (string) ($settings->get('seo.canonical_base_url', '') ?? '')
+        );
+        $galleriesSlug = (string) ($settings->get('galleries.slug', 'galleries') ?? 'galleries');
+        $aboutSlug = (string) ($settings->get('about.slug', 'about') ?? 'about');
+
+        return $this->view->render($response, 'frontend/gallery_playground.twig', [
+            'page_title' => 'Gallery Playground — ' . $siteTitle,
+            'meta_description' => (string) ($settings->get('site.description', '') ?? ''),
+            'current_url' => (string) $request->getUri(),
+            'canonical_url' => $roots['base'] . '/gallery',
+            'canonical_base' => $roots['base'],
+            'robots' => 'noindex,follow',
+            'galleries_slug' => $galleriesSlug,
+            'about_url' => $this->basePath . '/' . trim($aboutSlug, '/'),
+            'playground_theme' => 'axel',
+            'parent_categories' => (new NavigationService($this->db))->getParentCategoriesForNavigation(),
+            'is_admin' => $this->isAdmin(),
+            'nsfw_consent' => $this->hasNsfwConsent(),
+        ]);
     }
 
     public function template(Request $request, Response $response): Response

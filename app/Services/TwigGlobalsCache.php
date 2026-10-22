@@ -23,7 +23,7 @@ class TwigGlobalsCache
      * globals changes (new/renamed keys), so deployed caches with the old shape
      * are never served to templates expecting the new key.
      */
-    private const CACHE_KEY_PREFIX = 'twig_globals:v5:';
+    private const CACHE_KEY_PREFIX = 'twig_globals:v6:';
     private const TTL = 300; // 5 minutes
 
     /**
@@ -84,6 +84,7 @@ class TwigGlobalsCache
 
                 // Site identity
                 'site_title' => $siteTitle,
+                'home_template' => (string) ($settings->get('home.template', 'classic') ?? 'classic'),
                 'site_logo' => $settings->get('site.logo'),
                 'logo_type' => (string) ($settings->get('site.logo_type', 'text') ?? 'text'),
                 'site_copyright' => (string) ($settings->get('site.copyright', '') ?? ''),
@@ -282,6 +283,7 @@ class TwigGlobalsCache
             'privacy_url' => $basePath . '/privacy-policy',
             'cookie_url' => $basePath . '/cookie-policy',
             'site_title' => 'Cimaise',
+            'home_template' => 'classic',
             'site_logo' => null,
             'logo_type' => 'text',
             'site_copyright' => '',
