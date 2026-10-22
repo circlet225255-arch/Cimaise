@@ -2549,3 +2549,273 @@ body.selects-shell.coppola-home-shell #main-content > .dream-beats-home {
   .dream-style-carousel .dream-style-carousel__slide img,
   .dream-beats-home__background-layer { transition: none; transform: none; }
 }
+
+/* Freeform Mood & Tone collage: the homepage blur remains visible between the
+   images, so this section reads like a moodboard rather than another framed card. */
+.dream-beats-home .dream-beats-mood {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  min-height: clamp(24rem, 34vw, 34rem);
+  aspect-ratio: auto;
+  background: transparent;
+  color: var(--dream-white);
+}
+.dream-beats-home .dream-mood-collage {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+}
+.dream-beats-home .dream-mood-collage__texture {
+  position: absolute;
+  inset: 8% 5% 4% 8%;
+  opacity: .2;
+  background: var(--dream-mood-texture) center / cover no-repeat;
+  filter: blur(1.6rem) saturate(.78) brightness(.58);
+  transform: scale(1.06) rotate(-2deg);
+  clip-path: polygon(3% 4%, 98% 0, 100% 94%, 0 100%);
+  mix-blend-mode: screen;
+}
+.dream-beats-home .dream-mood-tile {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  overflow: hidden;
+  margin: 0;
+  border: 1px solid rgb(245 195 145 / 42%);
+  background: rgb(9 12 12 / 80%);
+  box-shadow: 0 1.25rem 2.6rem rgb(0 0 0 / 28%), 0 .2rem .9rem rgb(235 133 54 / 14%);
+  transform-origin: center;
+  transition: transform .7s cubic-bezier(.2, .72, .2, 1), filter .7s ease;
+}
+.dream-beats-home .dream-mood-tile picture,
+.dream-beats-home .dream-mood-tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.dream-beats-home .dream-mood-tile img {
+  object-fit: cover;
+  filter: saturate(.88) contrast(1.04) brightness(.82);
+  transition: transform .8s cubic-bezier(.2, .72, .2, 1), filter .7s ease;
+}
+.dream-beats-home .dream-mood-tile--1 {
+  top: 7%;
+  left: 6%;
+  width: 38%;
+  height: 66%;
+  transform: rotate(-4deg);
+  clip-path: polygon(0 3%, 96% 0, 100% 96%, 4% 100%);
+}
+.dream-beats-home .dream-mood-tile--2 {
+  top: 4%;
+  left: 44%;
+  width: 31%;
+  height: 27%;
+  transform: rotate(3deg);
+  clip-path: polygon(2% 0, 100% 5%, 97% 100%, 0 94%);
+}
+.dream-beats-home .dream-mood-tile--3 {
+  top: 16%;
+  right: 5%;
+  width: 25%;
+  height: 45%;
+  transform: rotate(-5deg);
+  clip-path: polygon(4% 0, 100% 3%, 96% 100%, 0 96%);
+}
+.dream-beats-home .dream-mood-tile--4 {
+  bottom: 4%;
+  left: 24%;
+  width: 26%;
+  height: 37%;
+  transform: rotate(5deg);
+  clip-path: polygon(0 4%, 96% 0, 100% 98%, 4% 100%);
+}
+.dream-beats-home .dream-mood-tile--5 {
+  right: 10%;
+  bottom: 3%;
+  width: 34%;
+  height: 38%;
+  transform: rotate(-2deg);
+  clip-path: polygon(2% 0, 100% 4%, 98% 97%, 0 100%);
+}
+.dream-beats-home .dream-beats-mood:hover .dream-mood-tile--1,
+.dream-beats-home .dream-beats-mood:focus-visible .dream-mood-tile--1 { transform: rotate(-5deg) translate(-.35rem, -.35rem); }
+.dream-beats-home .dream-beats-mood:hover .dream-mood-tile--2,
+.dream-beats-home .dream-beats-mood:focus-visible .dream-mood-tile--2 { transform: rotate(4deg) translate(.25rem, -.25rem); }
+.dream-beats-home .dream-beats-mood:hover .dream-mood-tile--3,
+.dream-beats-home .dream-beats-mood:focus-visible .dream-mood-tile--3 { transform: rotate(-6deg) translate(.35rem, -.2rem); }
+.dream-beats-home .dream-beats-mood:hover .dream-mood-tile--4,
+.dream-beats-home .dream-beats-mood:focus-visible .dream-mood-tile--4 { transform: rotate(6deg) translate(-.2rem, .2rem); }
+.dream-beats-home .dream-beats-mood:hover .dream-mood-tile--5,
+.dream-beats-home .dream-beats-mood:focus-visible .dream-mood-tile--5 { transform: rotate(-3deg) translate(.25rem, .25rem); }
+.dream-beats-home .dream-beats-mood:hover .dream-mood-tile img,
+.dream-beats-home .dream-beats-mood:focus-visible .dream-mood-tile img {
+  filter: saturate(1) contrast(1.06) brightness(.94);
+  transform: scale(1.04);
+}
+.dream-beats-home .dream-mood-shade {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 47% 49%, transparent 0 23%, rgb(5 8 8 / 8%) 54%, rgb(5 8 8 / 46%) 100%);
+}
+.dream-beats-home .dream-mood-copy {
+  position: absolute;
+  z-index: 3;
+  top: 36%;
+  left: 42%;
+  width: min(52%, 35rem);
+  pointer-events: none;
+  text-shadow: 0 .35rem 1.6rem rgb(0 0 0 / 72%);
+}
+.dream-beats-home .dream-mood-rule {
+  position: relative;
+  top: auto;
+  left: auto;
+  display: block;
+  width: 7.5rem;
+  margin-bottom: 1.25rem;
+  background: rgb(246 211 164 / 76%);
+}
+.dream-beats-home .dream-mood-kicker {
+  display: block;
+  margin-bottom: .8rem;
+  color: rgb(246 211 164 / 88%);
+  font-family: var(--dream-mono);
+  font-size: clamp(.56rem, .82vw, .72rem);
+  letter-spacing: .22em;
+  line-height: 1.25;
+}
+.dream-beats-home .dream-mood-copy h2 {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: auto;
+  margin: 0;
+  color: var(--dream-cream);
+  font-size: clamp(3.6rem, 8.4vw, 8rem);
+  line-height: .82;
+  letter-spacing: -.06em;
+  white-space: normal;
+  transform: none;
+}
+.dream-beats-home .dream-mood-copy h2 em {
+  display: block;
+  color: rgb(246 211 164 / 92%);
+  font-style: normal;
+  font-size: .68em;
+  letter-spacing: -.04em;
+}
+.dream-beats-home .dream-mood-copy p {
+  max-width: 18rem;
+  margin: 1.2rem 0 0;
+  color: rgb(255 248 234 / 78%);
+  font-family: var(--dream-sans);
+  font-size: clamp(.82rem, 1.2vw, 1rem);
+  line-height: 1.35;
+}
+.dream-beats-home .dream-mood-copy .dream-folio {
+  position: relative;
+  display: inline-block;
+  margin-top: 2rem;
+  color: rgb(255 248 234 / 62%);
+  font-size: .6rem;
+  letter-spacing: .18em;
+}
+.dream-beats-home .dream-mood-palette {
+  position: absolute;
+  z-index: 4;
+  bottom: 7%;
+  left: 7%;
+  display: flex;
+  gap: .65rem;
+  align-items: center;
+}
+.dream-beats-home .dream-mood-palette i {
+  display: block;
+  width: clamp(1.5rem, 3.1vw, 2.8rem);
+  aspect-ratio: 1;
+  border: 1px solid rgb(255 246 222 / 58%);
+  border-radius: 50%;
+  box-shadow: 0 .35rem .9rem rgb(0 0 0 / 26%);
+}
+.dream-beats-home .dream-mood-palette i:nth-child(1) { background: #f4d39a; }
+.dream-beats-home .dream-mood-palette i:nth-child(2) { background: #d9974c; }
+.dream-beats-home .dream-mood-palette i:nth-child(3) { background: #b94b0b; }
+@media (max-width: 767px) {
+  .dream-beats-home .dream-beats-mood {
+    min-height: 33rem;
+  }
+  .dream-beats-home .dream-mood-collage__texture {
+    inset: 10% 1% 5% 2%;
+  }
+  .dream-beats-home .dream-mood-tile--1 {
+    top: 8%;
+    left: 4%;
+    width: 57%;
+    height: 48%;
+  }
+  .dream-beats-home .dream-mood-tile--2 {
+    top: 6%;
+    left: 53%;
+    width: 42%;
+    height: 22%;
+  }
+  .dream-beats-home .dream-mood-tile--3 {
+    top: 29%;
+    right: 2%;
+    width: 34%;
+    height: 35%;
+  }
+  .dream-beats-home .dream-mood-tile--4 {
+    bottom: 4%;
+    left: 5%;
+    width: 43%;
+    height: 31%;
+  }
+  .dream-beats-home .dream-mood-tile--5 {
+    right: 9%;
+    bottom: 3%;
+    width: 42%;
+    height: 31%;
+  }
+  .dream-beats-home .dream-mood-copy {
+    top: 45%;
+    left: 10%;
+    width: 82%;
+  }
+  .dream-beats-home .dream-mood-copy h2 {
+    font-size: clamp(3.35rem, 15vw, 5.3rem);
+  }
+  .dream-beats-home .dream-mood-copy p {
+    max-width: 13rem;
+    margin-top: .9rem;
+  }
+  .dream-beats-home .dream-mood-copy .dream-folio {
+    margin-top: 1rem;
+  }
+  .dream-beats-home .dream-mood-palette {
+    bottom: 6%;
+    left: auto;
+    right: 4%;
+    gap: .45rem;
+  }
+  .dream-beats-home .dream-mood-palette i {
+    width: 1.45rem;
+  }
+}
+@media (min-width: 768px) {
+  /* Let My Work sit closer to the freeform moodboard without covering its copy. */
+  .dream-beats-home .dream-beats-my-work {
+    position: relative;
+    z-index: 4;
+    margin-top: clamp(-4.5rem, -4vw, -2rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dream-beats-home .dream-mood-tile,
+  .dream-beats-home .dream-mood-tile img { transition: none; }
+}

@@ -154,14 +154,27 @@
       {% endif %}
     </section>
 
+    {% set mood_images = all_images|default([])|slice(8, 5) %}
     <a class="dream-beats-mood" href="{{ works_url|e('html_attr') }}" aria-label="Xem toàn bộ album">
-      <div class="dream-card__backdrop" aria-hidden="true">
-        <img src="{{ base_path }}/assets/moodboard-n.jpg" alt="" loading="lazy" decoding="async">
+      <div class="dream-mood-collage" aria-hidden="true">
+        <div class="dream-mood-collage__texture" style="--dream-mood-texture: url('{{ (base_path ~ '/assets/moodboard-n.jpg')|e('html_attr') }}')"></div>
+        {% for image in mood_images %}
+          <figure class="dream-mood-tile dream-mood-tile--{{ loop.index }}">
+            {{ photo.picture(image, base_path, '(min-width: 768px) 24vw, 48vw', loop.index0 + 32, 2, '', '') }}
+          </figure>
+        {% endfor %}
       </div>
-      <div class="dream-card__shade" aria-hidden="true"></div>
-      <span class="dream-story-rule dream-mood-rule" aria-hidden="true"><i></i></span>
-      <h2>MOOD &amp; TONE</h2>
-      <span class="dream-folio">DREAM BEATS | PAGE 03</span>
+      <div class="dream-mood-shade" aria-hidden="true"></div>
+      <div class="dream-mood-copy">
+        <span class="dream-story-rule dream-mood-rule" aria-hidden="true"><i></i></span>
+        <span class="dream-mood-kicker">WARM / TACTILE / AFTER HOURS</span>
+        <h2>MOOD <em>&amp; TONE</em></h2>
+        <p>Light, texture, and the details that stay after dark.</p>
+        <span class="dream-folio">DREAM BEATS | PAGE 03</span>
+      </div>
+      <div class="dream-mood-palette" aria-label="Warm mood palette">
+        <i></i><i></i><i></i>
+      </div>
     </a>
   </div>
 
